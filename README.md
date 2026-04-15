@@ -159,12 +159,8 @@ description: 이 스킬이 하는 일과 언제 사용해야 하는지. (WHAT + 
 | 문서 | 설명 |
 |------|------|
 | [solar-skill-creator Marketplace](https://github.com/gobeumsu/JNU-Upstage-Skillthon) | 이 repo — `solar-skill-creator` 마켓플레이스 |
-| [Claude Code — Plugin Marketplaces](https://code.claude.com/docs/ko/plugin-marketplaces) | Skill/Plugin 배포 및 마켓플레이스 구성 |
-| [Claude Code — Plugins](https://code.claude.com/docs/ko/plugins) | Plugin(Skill, Agent, Hook) 제작 가이드 |
+| [Claude Code Docs](https://docs.anthropic.com/en/docs/claude-code/) | Claude Code 공식 문서 (Skills, Plugins, Marketplace) |
 | [Upstage Console Docs](https://console.upstage.ai/docs) | Solar LLM, Embeddings, Document Parse API 레퍼런스 |
-| [Upstage API — Chat](https://console.upstage.ai/docs/capabilities/generate/chat) | Solar 모델 목록 및 Chat Completion 예시 |
-| [Upstage API — Embeddings](https://console.upstage.ai/docs/capabilities/embed) | Embedding 모델 및 유사도 계산 |
-| [Upstage API — Document Parse](https://console.upstage.ai/docs/capabilities/parse) | PDF·이미지 문서 파싱 |
 
 ---
 
