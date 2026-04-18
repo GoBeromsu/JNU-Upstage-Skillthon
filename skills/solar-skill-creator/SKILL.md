@@ -486,7 +486,7 @@ Good luck!
 
 ## Upstage Solar API (JNU Skillthon Context)
 
-When the user is building a skill that uses the **Upstage Solar API** — or when the context is the JNU × Upstage Skillthon — start at `references/README.md` and load only the per-API file(s) you actually need. Do **not** read all five up front; progressive disclosure matters here.
+When the user is building a skill that uses the **Upstage Solar API** — or when the context is the JNU × Upstage Skillthon — start at `references/README.md` and load only the per-API file(s) you actually need. Do **not** read all five up front.
 
 | User intent | Reference file |
 |-------------|----------------|
