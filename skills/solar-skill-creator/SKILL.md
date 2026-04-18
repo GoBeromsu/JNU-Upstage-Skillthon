@@ -486,13 +486,22 @@ Good luck!
 
 ## Upstage Solar API (JNU Skillthon Context)
 
-When the user is building a skill that uses the **Upstage Solar API** — or when the context is the JNU × Upstage Skillthon — read `references/upstage.md` before writing any code.
+When the user is building a skill that uses the **Upstage Solar API** — or when the context is the JNU × Upstage Skillthon — start at `references/README.md` and load only the per-API file(s) you actually need. Do **not** read all five up front; progressive disclosure matters here.
+
+| User intent | Reference file |
+|-------------|----------------|
+| Generate / summarize / reason over text | `references/upstage-chat.md` |
+| Embed text for search, RAG, clustering, classification | `references/upstage-embeddings.md` |
+| Parse a document into structured HTML / Markdown with layout | `references/upstage-document-parse.md` |
+| Extract key/value fields from a document against a JSON Schema | `references/upstage-information-extract.md` |
+| Get raw text + word bounding boxes from a document image | `references/upstage-ocr.md` |
+
+For RAG over PDFs, compose them: **Parse → Embeddings (passage/query) → Chat**.
 
 Key points:
-- All skills must call Upstage API via `UPSTAGE_API_KEY` environment variable
-- Use the boilerplate in `references/upstage.md` for the `run()` function
-- Tell the user to copy `assets/.env.example` to `.env` and fill in their key
-- Available capabilities: **Chat** (Solar LLM), **Embeddings**, **Document Parsing**
-- Recommended model for chat: `solar-pro3`
+- All skills call Upstage via the `UPSTAGE_API_KEY` environment variable.
+- Tell the user to copy `assets/.env.example` to `.env` and fill in their key.
+- Recommended default chat model: `solar-pro3`.
+- If you are unsure which Upstage API the user needs, ask them before picking one — the wrong choice wastes credits.
 
 Do not validate whether `.env` is in `.gitignore` — just remind the user not to commit it.
