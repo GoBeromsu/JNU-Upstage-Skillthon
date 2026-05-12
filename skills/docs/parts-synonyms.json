@@ -1,0 +1,236 @@
+{
+  "_meta": {
+    "description": "차량 부품 동의어 사전. 견적서에 나오는 다양한 부품명 표현을 현대모비스 간단검색에서 검색 가능한 표준 부품명으로 매핑한다.",
+    "usage": "견적서의 raw_description에서 부품명을 추출하고, 이 사전의 synonyms에서 매칭하여 mobis_search_term으로 모비스 검색을 수행한다.",
+    "matching_strategy": "1) raw_part_code(부품번호)가 있으면 부품번호로 직접 검색 → 2) 이 사전에서 부품명 매칭 → 3) 매칭 실패 시 자동 검증 불가",
+    "categories": {
+      "engine": "엔진 관련",
+      "brake": "브레이크 관련",
+      "electrical": "전기/전자",
+      "cooling": "냉각 계통",
+      "ac": "에어컨",
+      "suspension": "현가/조향",
+      "transmission": "변속기/구동",
+      "exhaust": "배기 계통",
+      "body": "차체/외장",
+      "consumable": "소모품"
+    }
+  },
+  "mappings": [
+    {
+      "mobis_search_term": "엔진오일",
+      "category": "consumable",
+      "synonyms": ["엔진오일", "엔오공", "E/G OIL", "기름갈이", "엔진 윤활유", "모터오일", "엔진 OIL"]
+    },
+    {
+      "mobis_search_term": "오일필터",
+      "category": "consumable",
+      "synonyms": ["오일필터", "오일 필터", "오일 엘리먼트", "엔진오일 필터", "O/F"]
+    },
+    {
+      "mobis_search_term": "에어클리너",
+      "category": "consumable",
+      "synonyms": ["에어클리너", "에어크리너", "에어필터", "공기필터", "에어 크리너", "흡기필터", "에어 필터", "에어 엘리먼트"]
+    },
+    {
+      "mobis_search_term": "에어컨 필터",
+      "category": "consumable",
+      "synonyms": ["에어컨필터", "에어컨 필터", "캐빈필터", "히터필터", "항균필터", "에바필터", "실내필터"]
+    },
+    {
+      "mobis_search_term": "브레이크 패드",
+      "category": "brake",
+      "synonyms": ["브레이크패드", "브레이크 패드", "디스크패드", "앞패드", "뒤패드", "전륜 패드", "후륜 패드", "F/패드", "R/패드", "프론트 패드", "리어 패드", "브레이크 프론트 패드"]
+    },
+    {
+      "mobis_search_term": "브레이크 디스크",
+      "category": "brake",
+      "synonyms": ["브레이크디스크", "브레이크 디스크", "디스크로터", "앞디스크", "뒤디스크", "브레이크 로터"]
+    },
+    {
+      "mobis_search_term": "브레이크 라이닝",
+      "category": "brake",
+      "synonyms": ["브레이크라이닝", "브레이크 라이닝", "드럼 라이닝", "뒤 라이닝", "후륜 라이닝"]
+    },
+    {
+      "mobis_search_term": "브레이크 드럼",
+      "category": "brake",
+      "synonyms": ["브레이크드럼", "브레이크 드럼", "뒤 드럼", "후륜 드럼"]
+    },
+    {
+      "mobis_search_term": "브레이크 오일",
+      "category": "consumable",
+      "synonyms": ["브레이크오일", "브레이크 오일", "브레이크액", "제동액", "DOT4", "DOT3", "브레이크 플루이드"]
+    },
+    {
+      "mobis_search_term": "배터리",
+      "category": "electrical",
+      "synonyms": ["배터리", "밧데리", "밧떼리", "축전지", "자동차 배터리", "AGM배터리"]
+    },
+    {
+      "mobis_search_term": "발전기",
+      "category": "electrical",
+      "synonyms": ["발전기", "알터네이터", "제너레이터", "충전기", "알터네이타"]
+    },
+    {
+      "mobis_search_term": "시동모터",
+      "category": "electrical",
+      "synonyms": ["시동모터", "시동 모터", "스타터", "스타트모터", "셀모터", "시동장치"]
+    },
+    {
+      "mobis_search_term": "점화플러그",
+      "category": "engine",
+      "synonyms": ["점화플러그", "점화 플러그", "스파크플러그", "스파크 플러그", "플러그"]
+    },
+    {
+      "mobis_search_term": "예열플러그",
+      "category": "engine",
+      "synonyms": ["예열플러그", "예열 플러그", "글로우플러그", "글로 플러그", "히팅플러그"]
+    },
+    {
+      "mobis_search_term": "연료필터",
+      "category": "engine",
+      "synonyms": ["연료필터", "연료 필터", "가솔린 필터", "디젤필터", "휘발유 필터", "연료여과기"]
+    },
+    {
+      "mobis_search_term": "부동액",
+      "category": "cooling",
+      "synonyms": ["부동액", "냉각수", "LLC", "쿨란트", "엔진 냉각수", "부동액(녹색)", "부동액(적색)"]
+    },
+    {
+      "mobis_search_term": "라디에이터",
+      "category": "cooling",
+      "synonyms": ["라디에이터", "라디에타", "라지에이터", "냉각기", "라디에이타"]
+    },
+    {
+      "mobis_search_term": "서모스탯",
+      "category": "cooling",
+      "synonyms": ["서모스탯", "서미스타트", "써모스탯", "수온조절기", "써모스타트"]
+    },
+    {
+      "mobis_search_term": "워터펌프",
+      "category": "cooling",
+      "synonyms": ["워터펌프", "워터 펌프", "냉각수 펌프", "수냉 펌프"]
+    },
+    {
+      "mobis_search_term": "냉각수 온도센서",
+      "category": "cooling",
+      "synonyms": ["냉각수 온도센서", "수온센서", "냉각수센서", "WTS", "CTS", "냉각수 온도 센서"]
+    },
+    {
+      "mobis_search_term": "에어컨 컴프레서",
+      "category": "ac",
+      "synonyms": ["에어컨 컴프레서", "에어컨컴프레서", "A/C 컴프레서", "에어컨 압축기", "콤프레샤", "에어컨 콤프레서"]
+    },
+    {
+      "mobis_search_term": "에어컨 콘덴서",
+      "category": "ac",
+      "synonyms": ["에어컨 콘덴서", "에어컨콘덴서", "A/C 콘덴서", "에어컨 응축기", "컨덴서"]
+    },
+    {
+      "mobis_search_term": "사이드미러",
+      "category": "body",
+      "synonyms": ["사이드미러", "사이드 미러", "백미러", "아웃사이드 미러", "도어미러", "측면 거울"]
+    },
+    {
+      "mobis_search_term": "앞범퍼",
+      "category": "body",
+      "synonyms": ["앞범퍼", "앞 범퍼", "전범퍼", "프론트범퍼", "프론트 범퍼", "F/범퍼"]
+    },
+    {
+      "mobis_search_term": "뒤범퍼",
+      "category": "body",
+      "synonyms": ["뒤범퍼", "뒤 범퍼", "후범퍼", "리어범퍼", "리어 범퍼", "R/범퍼"]
+    },
+    {
+      "mobis_search_term": "안개등",
+      "category": "electrical",
+      "synonyms": ["안개등", "포그램프", "포그라이트", "포그등"]
+    },
+    {
+      "mobis_search_term": "쇽업소바",
+      "category": "suspension",
+      "synonyms": ["쇽업쇼바", "쇽업소바", "쇼바", "댐퍼", "완충기", "쇽업", "앞쇼바", "뒤쇼바"]
+    },
+    {
+      "mobis_search_term": "등속조인트",
+      "category": "transmission",
+      "synonyms": ["등속조인트", "등속 조인트", "CV조인트", "드라이브 샤프트"]
+    },
+    {
+      "mobis_search_term": "ECU",
+      "category": "electrical",
+      "synonyms": ["ECU", "이씨유", "엔진제어장치", "전자제어장치", "PCM"]
+    },
+    {
+      "mobis_search_term": "ABS 센서",
+      "category": "electrical",
+      "synonyms": ["ABS센서", "ABS 센서", "ABS 속도센서", "ABS 휠센서", "에이비에스 센서"]
+    },
+    {
+      "mobis_search_term": "산소센서",
+      "category": "exhaust",
+      "synonyms": ["산소센서", "산소 센서", "O2센서", "람다센서", "배기가스 센서"]
+    },
+    {
+      "mobis_search_term": "삼원촉매",
+      "category": "exhaust",
+      "synonyms": ["삼원촉매", "삼원 촉매", "촉매", "캐탈라이저", "촉매장치", "배기가스 촉매"]
+    },
+    {
+      "mobis_search_term": "소음기",
+      "category": "exhaust",
+      "synonyms": ["소음기", "머플러", "배기관", "중간 소음기", "후 소음기", "테일 머플러"]
+    },
+    {
+      "mobis_search_term": "타이밍벨트",
+      "category": "engine",
+      "synonyms": ["타이밍벨트", "타이밍 벨트", "T/B", "타벨", "캠벨트"]
+    },
+    {
+      "mobis_search_term": "구동벨트",
+      "category": "engine",
+      "synonyms": ["구동벨트", "팬벨트", "V벨트", "외부벨트", "보조벨트", "벨트세트"]
+    },
+    {
+      "mobis_search_term": "클러치 디스크",
+      "category": "transmission",
+      "synonyms": ["클러치 디스크", "클러치판", "클러치디스크", "클러치 세트"]
+    },
+    {
+      "mobis_search_term": "와이퍼 블레이드",
+      "category": "body",
+      "synonyms": ["와이퍼 블레이드", "와이퍼", "와이파", "윈드실드 와이퍼", "앞유리 와이퍼"]
+    },
+    {
+      "mobis_search_term": "계기판",
+      "category": "electrical",
+      "synonyms": ["계기판", "클러스터", "인스트루먼트 클러스터", "게이지", "속도계"]
+    },
+    {
+      "mobis_search_term": "ATF",
+      "category": "consumable",
+      "synonyms": ["ATF", "자동변속기 오일", "자동미션 오일", "오토미션 오일", "CVT 오일", "미션오일(자동)"]
+    },
+    {
+      "mobis_search_term": "엔진마운트",
+      "category": "engine",
+      "synonyms": ["엔진마운트", "엔진 마운트", "미션마운트", "엔진 지지대", "마운팅"]
+    },
+    {
+      "mobis_search_term": "마스터 실린더",
+      "category": "brake",
+      "synonyms": ["마스터실린더", "마스타실린더", "마스터 실린더", "브레이크 마스터"]
+    },
+    {
+      "mobis_search_term": "오일팬 가스켓",
+      "category": "engine",
+      "synonyms": ["오일팬 가스켓", "오일팬가스켓", "오일팬 개스킷", "하부 가스켓"]
+    },
+    {
+      "mobis_search_term": "워셔액",
+      "category": "consumable",
+      "synonyms": ["워셔액", "유리세척액", "워셔", "와셔액"]
+    }
+  ]
+}
