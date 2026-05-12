@@ -12,3 +12,6 @@ build/
 .omc/
 .omx/
 .claude/
+.codex/
+# 테스트 이미지/결과
+skills/docs/test_*
