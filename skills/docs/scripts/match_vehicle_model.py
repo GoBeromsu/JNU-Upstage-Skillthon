@@ -23,8 +23,7 @@ from dotenv import load_dotenv
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent  # skills/docs/scripts → project root
 ENV_PATHS = [
-    PROJECT_ROOT / "skills" / "solar-skill-creator" / "assets" / ".env.example",
-    PROJECT_ROOT / ".claude" / "skills" / "solar-skill-creator" / "assets" / ".env.example",
+    PROJECT_ROOT / "skills" / "solar-skill-creator" / "assets" / ".env",
     SCRIPT_DIR.parent / "assets" / ".env",
 ]
 for env_path in ENV_PATHS:
