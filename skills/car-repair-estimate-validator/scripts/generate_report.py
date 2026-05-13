@@ -129,43 +129,26 @@ def generate_report(verify_result: dict, use_emoji: bool = True) -> str:
             )
         lines.append("")
 
-    # ── Solar Chat 추정 (비교불가/저신뢰 항목) ──
-    solar_items = [it for it in items if it.get("solar_estimate")]
-    if solar_items:
-        lines.append("## Solar Chat 가격 추정 (참고용)")
-        lines.append("")
-        lines.append("> 공임나라/모비스에서 직접 비교할 수 없는 항목에 대해 Solar Chat AI가 시장 가격을 추정한 결과입니다.")
-        lines.append("")
-        lines.append("| 항목 | 견적가 | 추정 범위 | 판정 | 추정 근거 |")
-        lines.append("|------|--------|----------|------|----------|")
-        for it in solar_items:
-            se = it["solar_estimate"]
-            desc = it["raw_description"]
-            if len(desc) > 18:
-                desc = desc[:16] + ".."
-            est_price = it.get("estimate_labor", 0) or it.get("estimate_parts", 0) or it.get("estimate_total", 0)
-            p_min = se.get("price_min", 0)
-            p_max = se.get("price_max", 0)
-            verdict = se.get("verdict", "")
-            basis = se.get("reference_basis", "")
-            if len(basis) > 25:
-                basis = basis[:23] + ".."
-            lines.append(
-                f"| {desc} | {_fmt_krw(est_price)} | "
-                f"{_fmt_krw(p_min)}~{_fmt_krw(p_max)} | {verdict} | {basis} |"
-            )
-        lines.append("")
-
-    # ── 비교 불가 항목 (Solar 추정도 없는 경우) ──
+    # ── 비교 불가 항목 (에이전트 웹 검색으로 보충 필요) ──
     no_ref_items = [it for it in items
-                    if it["status"] in ("no_reference", "painting") and not it.get("solar_estimate")]
+                    if it["status"] in ("no_reference", "low_confidence", "painting")]
     if no_ref_items:
-        lines.append("## 비교 불가 항목")
+        lines.append("## 비교 불가 항목 (웹 검색 보충 필요)")
+        lines.append("")
+        lines.append("> 아래 항목은 공임나라/모비스에서 직접 비교할 수 없는 항목입니다. "
+                     "에이전트가 웹 검색으로 시장 참고가를 확인하여 보충합니다.")
         lines.append("")
         for it in no_ref_items:
-            reason = it.get("status_reason", "비교 데이터 없음")
+            labor = it.get("estimate_labor", 0)
+            parts = it.get("estimate_parts", 0)
             total = it.get("estimate_total", 0)
-            lines.append(f"- **{it['raw_description']}** ({_fmt_krw(total)}) — {reason}")
+            if labor > 0 and parts == 0:
+                price_str = f"공임 {_fmt_krw(labor)}"
+            elif parts > 0 and labor == 0:
+                price_str = f"부품 {_fmt_krw(parts)}"
+            else:
+                price_str = _fmt_krw(total)
+            lines.append(f"- **{it['raw_description']}** ({price_str})")
         lines.append("")
 
     # ── 주의 항목 상세 ──

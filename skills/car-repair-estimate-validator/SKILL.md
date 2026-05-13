@@ -14,9 +14,9 @@ description: >
 정비소에서 받은 견적서 사진을 분석하여, 각 항목의 공임비와 부품비가 시장 기준 대비 적정한지 검증하고 구체적인 한국어 리포트를 생성한다.
 
 ## 검증 기준
-- **공임비**: 공임나라(gongim.com) 표준 공임비
-- **부품비**: 현대모비스(mobis-as.com) 순정 부품 정가
-- Solar Chat으로 매칭 불가 항목은 AI 가격 추정 (참고용)
+- **공임비**: 공임나라(gongim.com) 표준 공임비 (실시간 웹 조회)
+- **부품비**: 현대모비스(mobis-as.com) 순정 부품 정가 (실시간 웹 조회)
+- **비교불가 항목**: 에이전트가 실시간 웹 검색으로 시장 참고가 확인
 
 ## 사용자 인터랙션 플로우
 
@@ -58,25 +58,33 @@ python ./scripts/run_pipeline.py /path/to/estimate.jpg --vehicle "스포티지 2
 - 종합 판정 (적정 / 다소 높음 / 높음)
 - 공임 비교 테이블 (공임나라 기준)
 - 부품 비교 테이블 (모비스 정가 기준)
-- Solar Chat 가격 추정 (참고용)
 - 항목별 상세 제안
 - 종합 제안
 
-### Step 5: 비교불가 항목 웹 검색 (선택)
-리포트에 Solar Chat 추정으로만 비교된 항목이 있으면, 에이전트가 웹 검색으로 실제 시장가를 확인하여 보충 설명을 제공하라.
+### Step 5: 비교불가 항목 웹 검색 (필수)
+리포트에 "비교 불가" 또는 "비교 데이터 신뢰도 낮음"으로 표시된 항목이 있으면, 에이전트가 직접 웹 검색으로 시장 참고가를 확인하여 리포트를 보충하라. 이 단계는 선택이 아닌 필수이다.
 
 **검색 쿼리 패턴:**
-- 공임 항목: `[차량명] [정비항목] 공임비 공임나라 2024`
-- 부품 항목: `[부품번호] 현대모비스 가격` 또는 `[부품명] 순정 가격`
-- 부품번호 없는 부품: `[차량명] [부품명] 부품 가격 순정`
+- 공임 항목: `[차량명] [연식] [정비항목] 공임비 공임나라`
+- 부품 (번호 있음): `[부품번호] 현대모비스 가격`
+- 부품 (번호 없음): `[차량명] [부품명] 순정 부품 가격`
+- 소모품: `[소모품명] 자동차 가격 비교`
 
-검색 결과를 리포트 하단에 보충 정보로 추가하라.
+**검색 결과 활용:**
+- 찾은 시장가를 견적서 금액과 비교하여 편차(%)를 계산
+- 리포트 하단에 "웹 검색 보충 정보" 섹션으로 추가
+- 출처 URL을 함께 제시
 
 ### Step 6: 후속 질문 대응
 사용자가 특정 항목에 대해 추가 질문하면:
 - 해당 항목의 공임나라/모비스 기준가를 다시 설명
 - 정비소에 어떻게 문의해야 하는지 구체적으로 안내
-- 필요하면 웹 검색으로 최신 시장가 확인
+- 웹 검색으로 최신 시장가를 확인하여 근거 제시
+
+**후속 질문 시 검색 쿼리 패턴:**
+- `[차량명] [정비항목] 공임비 공임나라 2024`
+- `[부품번호] 현대모비스 가격` 또는 `[부품명] 순정 가격`
+- `[차량명] [부품명] 부품 가격 순정`
 
 ## 에러 상황 처리
 
@@ -97,13 +105,13 @@ Upstage API 키가 설정되지 않았습니다.
 ### 차량 매칭 실패
 차량명이 모비스 모델 목록에 없는 경우:
 - 부품번호가 기재된 항목은 번호로 직접 검색 가능 (차량 정보 불필요)
-- 부품명 검색은 불가 → Solar Chat 추정으로 대체
+- 부품명 검색은 불가 → 에이전트 웹 검색으로 대체 (Step 5 참조)
 - 사용자에게 정확한 차량명+연식 재확인 요청
 
 ### 모비스 봇 차단
 IP 차단 발생 시:
 - 부품번호 검색은 재시도
-- 부품명 검색은 스킵 → Solar Chat 추정으로 대체
+- 부품명 검색은 스킵 → 에이전트 웹 검색으로 대체 (Step 5 참조)
 - 시간이 지나면 자동 복구됨을 안내
 
 ## 편차 판정 기준
@@ -121,32 +129,33 @@ IP 차단 발생 시:
 
 - **OCR**: Upstage Information Extract API
 - **차량 매칭**: Upstage Solar Chat + 모비스 모델 목록 (JSON 번들링)
-- **공임 조회**: 공임나라 AJAX API (requests)
-- **부품 조회**: 현대모비스 간단검색 (Playwright stealth)
+- **공임 조회**: 공임나라 웹 조회 (requests, AJAX POST)
+- **부품 조회**: 현대모비스 간단검색 웹 조회 (Playwright stealth)
+- **동의어 매핑**: 공임/부품 동의어 사전으로 매칭률 향상
 - **검증 엔진**: 편차 계산 + 매칭 신뢰도 필터 + 한국어 제안 생성
+- **비교불가 항목 보충**: 에이전트 실시간 웹 검색으로 시장 참고가 확인
 - **리포트**: 마크다운 생성 (API 호출 없음)
 
 ## 파일 구조
 
 ```
 car-repair-estimate-validator/
-├── SKILL.md                    # 이 파일
+├── SKILL.md                       # 이 파일
 ├── scripts/
-│   ├── run_pipeline.py         # 전체 파이프라인 진입점
-│   ├── parse_estimate_ie.py    # OCR (Information Extract)
-│   ├── match_vehicle_model.py  # 차량 모델 매칭
-│   ├── smart_lookup.py         # 가격 조회 (Solar Chat + 공임나라 + 모비스)
-│   ├── lookup_gongim.py        # 공임나라 API
-│   ├── lookup_mobis.py         # 모비스 Playwright
-│   ├── enhance_with_synonyms.py # 동의어 사전 보강
-│   ├── verify_estimate.py      # 검증 엔진
-│   ├── fallback_solar_estimate.py # Solar Chat 가격 추정
-│   └── generate_report.py      # 리포트 생성
+│   ├── run_pipeline.py            # 전체 파이프라인 진입점
+│   ├── parse_estimate_ie.py       # OCR (Upstage Information Extract)
+│   ├── match_vehicle_model.py     # 차량 모델 매칭 (Solar Chat)
+│   ├── smart_lookup.py            # 항목 매핑 + 공임나라·모비스 가격 조회
+│   ├── lookup_gongim.py           # 공임나라 웹 조회 (AJAX POST)
+│   ├── lookup_mobis.py            # 모비스 간단검색 웹 조회 (Playwright)
+│   ├── enhance_with_synonyms.py   # 동의어 사전 매핑 (미매칭 항목 재조회)
+│   ├── verify_estimate.py         # 검증 엔진 (편차 계산 + 판정)
+│   └── generate_report.py         # 리포트 생성 (마크다운)
 ├── references/
-│   ├── parsed-estimate-schema.json       # OCR 데이터 모델
-│   ├── parsed-estimate-flat-schema.json  # IE용 플래트 스키마
-│   ├── mobis-models.json                 # 모비스 차량 모델 목록
-│   ├── standard-repair-times.json        # 표준정비시간 데이터
+│   ├── parsed-estimate-schema.json       # ParsedEstimate 데이터 모델
+│   ├── parsed-estimate-flat-schema.json  # IE API용 플래트 스키마
+│   ├── mobis-models.json                 # 모비스 차량 모델 목록 (486개)
+│   ├── standard-repair-times.json        # 표준정비시간 데이터 (63항목×6차종)
 │   ├── labor-synonyms.json              # 공임 동의어 사전
 │   └── parts-synonyms.json             # 부품 동의어 사전
 └── assets/

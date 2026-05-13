@@ -93,7 +93,6 @@ from match_vehicle_model import match_vehicle_model
 from smart_lookup import run_smart_lookup
 from enhance_with_synonyms import enhance_lookup_result
 from verify_estimate import verify_estimate
-from fallback_solar_estimate import estimate_unmatched_items
 from generate_report import generate_report
 
 
@@ -123,7 +122,7 @@ def run_pipeline(
     base_name = Path(image_paths[0]).stem
 
     # ── Step 1: OCR ──
-    print(f"[1/7] OCR 처리 중... ({len(image_paths)}장)", file=sys.stderr)
+    print(f"[1/6] OCR 처리 중... ({len(image_paths)}장)", file=sys.stderr)
     t1 = time.time()
 
     if len(image_paths) == 1:
@@ -157,7 +156,7 @@ def run_pipeline(
         return {"error": "OCR에서 정비 항목을 추출하지 못했습니다.", "ocr_result": ocr_result}
 
     # ── Step 2: 차량 매칭 ──
-    print("[2/7] 차량 모델 매칭 중...", file=sys.stderr)
+    print("[2/6] 차량 모델 매칭 중...", file=sys.stderr)
     t2 = time.time()
 
     vehicle_name = vehicle_hint or ocr_result.get("vehicle_car_model", "")
@@ -180,8 +179,8 @@ def run_pipeline(
     cat_seq = vehicle_match.get("cat_seq") or ""
     vehicle_model = vehicle_match.get("matched_name") or vehicle_name
 
-    # ── Step 3: 가격 조회 (Solar Chat + 공임나라 + 모비스) ──
-    print("[3/7] 가격 조회 중 (공임나라 + 모비스)...", file=sys.stderr)
+    # ── Step 3: 가격 조회 (공임나라 웹 조회 + 모비스 웹 조회) ──
+    print("[3/6] 가격 조회 중 (공임나라 + 모비스)...", file=sys.stderr)
     t3 = time.time()
 
     lookup_result = run_smart_lookup(
@@ -196,8 +195,8 @@ def run_pipeline(
     if save_intermediate:
         _save_json(lookup_result, output_dir, f"{base_name}_lookup.json")
 
-    # ── Step 4: 동의어 보강 ──
-    print("[4/7] 동의어 사전으로 공임 매칭 보강 중...", file=sys.stderr)
+    # ── Step 4: 동의어 사전 매핑 (미매칭 항목 재조회) ──
+    print("[4/6] 동의어 사전 매핑으로 미매칭 항목 재조회 중...", file=sys.stderr)
     t4 = time.time()
 
     enhanced_result = enhance_lookup_result(lookup_result)
@@ -208,7 +207,7 @@ def run_pipeline(
         _save_json(enhanced_result, output_dir, f"{base_name}_enhanced.json")
 
     # ── Step 5: 검증 ──
-    print("[5/7] 검증 분석 중...", file=sys.stderr)
+    print("[5/6] 검증 분석 중...", file=sys.stderr)
     t5 = time.time()
 
     verify_result = verify_estimate(enhanced_result)
@@ -221,27 +220,15 @@ def run_pipeline(
     if save_intermediate:
         _save_json(verify_result, output_dir, f"{base_name}_verify.json")
 
-    # ── Step 6: Solar Chat 추정 (비교불가 항목) ──
+    # 비교불가 항목 안내
     unmatched_count = sum(1 for it in verify_result["items"]
                          if it["status"] in ("no_reference", "low_confidence"))
     if unmatched_count > 0:
-        print(f"[6/7] Solar Chat으로 비교불가 {unmatched_count}개 항목 추정 중...", file=sys.stderr)
-        t6 = time.time()
+        print(f"  ⚠ 비교불가 항목 {unmatched_count}건 — 에이전트 웹 검색으로 보충 필요", file=sys.stderr)
 
-        final_result = estimate_unmatched_items(verify_result)
-        api_calls["solar_chat"] += 1
-
-        print(f"  ({time.time()-t6:.1f}초)", file=sys.stderr)
-    else:
-        print("[6/7] 비교불가 항목 없음 — Solar Chat 추정 스킵", file=sys.stderr)
-        final_result = verify_result
-
-    if save_intermediate:
-        _save_json(final_result, output_dir, f"{base_name}_final.json")
-
-    # ── Step 7: 리포트 생성 ──
-    print("[7/7] 리포트 생성 중...", file=sys.stderr)
-    report_md = generate_report(final_result)
+    # ── Step 6: 리포트 생성 ──
+    print("[6/6] 리포트 생성 중...", file=sys.stderr)
+    report_md = generate_report(verify_result)
 
     elapsed = time.time() - t_start
     print(f"\n✅ 완료 ({elapsed:.1f}초)", file=sys.stderr)
@@ -252,7 +239,7 @@ def run_pipeline(
 
     return {
         "report_md": report_md,
-        "verify_result": final_result,
+        "verify_result": verify_result,
         "ocr_result": ocr_result,
         "vehicle_match": vehicle_match,
         "lookup_result": enhanced_result,
