@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ParsedEstimate",
+  "description": "자동차 정비 견적서 OCR 파싱 결과. 자동차관리법 시행규칙 별지 제89호의3 서식 (2010~2026) 및 메이저 변형 양식 (카포스/공임나라/블루핸즈) 커버.",
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": ["string", "null"],
+      "description": "일련번호. 견적서 상단에 기재된 고유 번호."
+    },
+    "issue_date": {
+      "type": ["string", "null"],
+      "description": "발급일자. ISO 8601 형식 (YYYY-MM-DD). OCR 결과에서 날짜를 정규화하여 기입.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "insurance_type": {
+      "type": "string",
+      "description": "보험 처리 구분. 견적서 내용이나 양식으로 판단.",
+      "enum": ["insurance", "general", "unknown"]
+    },
+    "vehicle": {
+      "type": "object",
+      "description": "차량소유자 영역. 견적서 상단의 차량 및 소유자 정보.",
+      "properties": {
+        "registration_number": {
+          "type": ["string", "null"],
+          "description": "등록번호. 예: '152더5829'"
+        },
+        "raw_car_model": {
+          "type": ["string", "null"],
+          "description": "차명(차종). 견적서에 적힌 raw 문자열 그대로. 표준 차종명 정규화는 이후 모듈 책임."
+        },
+        "mileage_km": {
+          "type": ["integer", "null"],
+          "description": "주행거리 (km, 정수). 문자열에서 단위 제거 후 정수 변환."
+        },
+        "registration_date": {
+          "type": ["string", "null"],
+          "description": "등록년월일. ISO 8601 형식 (YYYY-MM-DD).",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+        },
+        "vin": {
+          "type": ["string", "null"],
+          "description": "차대번호 (VIN)."
+        },
+        "owner_name": {
+          "type": ["string", "null"],
+          "description": "소유자명. 2010년 양식에만 존재하는 칸. 2014년 이후 양식에서는 칸 자체가 없으므로 null."
+        },
+        "owner_address": {
+          "type": ["string", "null"],
+          "description": "소유자 주소. 2010년 양식에만 존재하는 칸. 2014년 이후 양식에서는 칸 자체가 없으므로 null."
+        }
+      },
+      "required": ["registration_number", "raw_car_model"]
+    },
+    "shop": {
+      "type": "object",
+      "description": "정비사업자 영역. 검증 엔진은 이 정보를 사용하지 않음. 검증 결과 리포트에서 어느 정비소 견적인지 표시하기 위한 용도.",
+      "properties": {
+        "business_number": {
+          "type": ["string", "null"],
+          "description": "사업자등록번호."
+        },
+        "shop_registration": {
+          "type": ["string", "null"],
+          "description": "정비업 등록번호."
+        },
+        "name": {
+          "type": ["string", "null"],
+          "description": "업체명 및 대표자."
+        },
+        "address": {
+          "type": ["string", "null"],
+          "description": "주소."
+        },
+        "phone": {
+          "type": ["string", "null"],
+          "description": "전화번호."
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "description": "항목 표의 각 행. 한 줄이 하나의 RawLineItem. raw_ 접두사가 붙은 필드는 견적서에 적힌 그대로의 문자열이며, 정규화 없이 그대로 전달한다.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "line_number": {
+            "type": "integer",
+            "description": "항목 표 안에서의 행 순번. 1부터 시작."
+          },
+          "raw_description": {
+            "type": "string",
+            "description": "견적내용 칸의 텍스트 그대로. 예: '앞 브레이크 패드 교환'. 표준 작업명 매칭은 이후 모듈의 책임."
+          },
+          "raw_part_code": {
+            "type": ["string", "null"],
+            "description": "코드 칸의 raw 문자열. 발급일자에 따라 의미가 다름. 2023.6.9 이전: 자유 표기 (부품번호, 약어 등 정비소마다 상이). 2023.6.9 이후: A/B/C/D/F 등급 명시 (법적 의무). OCR 파싱 모듈은 코드 칸의 raw 문자열만 그대로 전달한다. 의미 해석은 이후 모듈의 책임."
+          },
+          "quantity": {
+            "type": ["number", "null"],
+            "description": "수량. 정수가 일반적이지만 도장 양식 대비 float 허용."
+          },
+          "unit_price": {
+            "type": ["integer", "null"],
+            "description": "단가 (원). '62,400원', '62,400' 등 OCR 결과에서 정수로 통일."
+          },
+          "part_subtotal": {
+            "type": ["integer", "null"],
+            "description": "부품 계 (원). 해당 행의 부품비 소계."
+          },
+          "labor_cost": {
+            "type": ["integer", "null"],
+            "description": "공임 (원). 해당 행의 공임비."
+          },
+          "line_total": {
+            "type": ["integer", "null"],
+            "description": "줄 합계 (원). 해당 행의 부품비 + 공임비."
+          },
+          "item_type": {
+            "type": "string",
+            "description": "줄의 종류. 표 분리 양식(블루핸즈) 흡수용. combined: 한 줄에 부품과 공임이 같이 있음 (표준 양식, 카포스, 공임나라). part_only: 이 줄은 부품 정보만 (공임 필드는 null). labor_only: 이 줄은 공임 정보만 (부품 필드는 null).",
+            "enum": ["combined", "part_only", "labor_only"]
+          }
+        },
+        "required": ["line_number", "raw_description", "item_type"]
+      },
+      "minItems": 1
+    },
+    "summary": {
+      "type": "object",
+      "description": "합계 영역. 공임나라처럼 '부품합계/공임합계/공급가액/부가세/합계액'으로 다른 양식도 동의어 사전을 통해 이 5개 필드에 매핑된다.",
+      "properties": {
+        "parts_total": {
+          "type": ["integer", "null"],
+          "description": "부품 합계 (원)."
+        },
+        "labor_total": {
+          "type": ["integer", "null"],
+          "description": "공임 합계 (원)."
+        },
+        "subtotal": {
+          "type": ["integer", "null"],
+          "description": "계 = 부품 + 공임 (원)."
+        },
+        "vat": {
+          "type": ["integer", "null"],
+          "description": "부가가치세 (원)."
+        },
+        "grand_total": {
+          "type": ["integer", "null"],
+          "description": "총액 (원). OCR 파싱 모듈이 이 값이 None이 아님을 보장한다."
+        }
+      },
+      "required": ["grand_total"]
+    },
+    "ocr_meta": {
+      "type": "object",
+      "description": "OCR 자체 정보. 파싱 품질 판단 및 이후 모듈의 주의사항 안내용.",
+      "properties": {
+        "is_standard_format": {
+          "type": "boolean",
+          "description": "표준 양식 여부. true이면 표준/메이저 변형 양식, false이면 비표준 양식 처리 흐름."
+        },
+        "likely_format_year": {
+          "type": ["integer", "null"],
+          "description": "추정 양식 시기 (연도). 발급일자 + 법조항 번호 + 안내사항 7번 존재 여부로 추정. 참고용."
+        },
+        "parse_confidence": {
+          "type": "number",
+          "description": "OCR 신뢰도 (0.0~1.0).",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "failed_extractions": {
+          "type": "array",
+          "description": "추출 실패 필드명 목록. 필드 값이 None인 것이 '가려진 정보'인지 '양식에 없는 칸'인지 구분하는 데 사용. failed_extractions에 있으면 OCR이 못 읽은 것 (재촬영 권장).",
+          "items": {
+            "type": "string"
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "description": "경고 목록. 비표준 영역 감지 (예: 판금 양식의 '추가정비동의여부'), 의심스러운 값 추출 (예: 음수 가격, 비현실적 주행거리) 등을 기록. 이후 모듈이 사용자에게 주의사항을 안내할 때 활용.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": ["is_standard_format", "parse_confidence"]
+    }
+  },
+  "required": ["insurance_type", "vehicle", "items", "summary", "ocr_meta"]
+}

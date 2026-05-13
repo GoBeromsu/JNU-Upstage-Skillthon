@@ -1,0 +1,118 @@
+{
+  "type": "object",
+  "properties": {
+    "serial_number": {
+      "type": "string",
+      "description": "견적서 상단의 일련번호"
+    },
+    "issue_date": {
+      "type": "string",
+      "description": "발급일자. YYYY-MM-DD 형식으로 변환"
+    },
+    "insurance_type": {
+      "type": "string",
+      "description": "보험 처리 구분. 보험이면 insurance, 일반이면 general, 판단 불가면 unknown"
+    },
+    "vehicle_registration_number": {
+      "type": "string",
+      "description": "차량 등록번호. 예: 152더5829"
+    },
+    "vehicle_car_model": {
+      "type": "string",
+      "description": "차명(차종). 견적서에 적힌 그대로"
+    },
+    "vehicle_mileage_km": {
+      "type": "integer",
+      "description": "주행거리 (km 단위 정수). 45,230km이면 45230"
+    },
+    "vehicle_registration_date": {
+      "type": "string",
+      "description": "차량 등록년월일. YYYY-MM-DD 형식"
+    },
+    "vehicle_vin": {
+      "type": "string",
+      "description": "차대번호 (VIN)"
+    },
+    "vehicle_owner_name": {
+      "type": "string",
+      "description": "소유자명. 2010년 양식에만 존재. 없으면 빈 문자열"
+    },
+    "shop_name": {
+      "type": "string",
+      "description": "정비업체명 및 대표자"
+    },
+    "shop_business_number": {
+      "type": "string",
+      "description": "사업자등록번호"
+    },
+    "shop_address": {
+      "type": "string",
+      "description": "정비업체 주소"
+    },
+    "shop_phone": {
+      "type": "string",
+      "description": "정비업체 전화번호"
+    },
+    "items": {
+      "type": "array",
+      "description": "정비 항목 표의 각 행. 견적서에 기재된 모든 정비/부품 항목을 순서대로 추출",
+      "items": {
+        "type": "object",
+        "properties": {
+          "line_number": {
+            "type": "integer",
+            "description": "항목 순번. 1부터 시작"
+          },
+          "raw_description": {
+            "type": "string",
+            "description": "견적내용 칸의 텍스트 그대로. 예: 앞 브레이크 패드 교환"
+          },
+          "raw_part_code": {
+            "type": "string",
+            "description": "코드 칸의 문자열. 부품번호 또는 등급코드(A/B/C/D/F). 없으면 빈 문자열"
+          },
+          "quantity": {
+            "type": "number",
+            "description": "수량"
+          },
+          "unit_price": {
+            "type": "integer",
+            "description": "단가 (원). 62,400원이면 62400"
+          },
+          "part_subtotal": {
+            "type": "integer",
+            "description": "부품비 소계 (원)"
+          },
+          "labor_cost": {
+            "type": "integer",
+            "description": "공임 (원)"
+          },
+          "line_total": {
+            "type": "integer",
+            "description": "줄 합계 (원) = 부품비 + 공임"
+          }
+        }
+      }
+    },
+    "summary_parts_total": {
+      "type": "integer",
+      "description": "부품비 합계 (원)"
+    },
+    "summary_labor_total": {
+      "type": "integer",
+      "description": "공임 합계 (원)"
+    },
+    "summary_subtotal": {
+      "type": "integer",
+      "description": "계 = 부품 + 공임 (원)"
+    },
+    "summary_vat": {
+      "type": "integer",
+      "description": "부가가치세 (원)"
+    },
+    "summary_grand_total": {
+      "type": "integer",
+      "description": "총액 (원). 부가세 포함 최종 금액"
+    }
+  }
+}
