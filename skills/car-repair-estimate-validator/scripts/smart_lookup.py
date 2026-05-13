@@ -60,9 +60,23 @@ def solar_chat(prompt: str, system: str = "") -> str:
     return resp.choices[0].message.content.strip()
 
 
+def _parse_solar_json(raw: str) -> dict | None:
+    """Solar Chat 응답에서 JSON을 파싱한다. 실패 시 None."""
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+        raw = raw.strip()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+
+
 def match_single_item(item: dict, vehicle_model: str) -> dict:
     """
     Solar Chat으로 단일 항목을 공임나라/모비스 검색어로 매핑한다.
+    파싱 실패 시 1회 재시도.
     """
     desc = item.get("raw_description", "")
     labor = item.get("labor_cost", 0)
@@ -71,9 +85,6 @@ def match_single_item(item: dict, vehicle_model: str) -> dict:
     line_total = item.get("line_total", 0)
 
     categories_text = ", ".join(GONGIM_CATEGORIES)
-
-    # 공급가액(부품+공임 합산) 형태인 경우
-    is_combined_price = (labor == 0 and parts == 0 and line_total > 0)
 
     prompt = f"""차량: {vehicle_model}
 항목: {desc}
@@ -90,25 +101,86 @@ def match_single_item(item: dict, vehicle_model: str) -> dict:
 
 JSON만 반환하세요."""
 
-    raw = solar_chat(prompt, system="정확한 JSON 객체 하나만 반환하세요.")
+    # 최대 2회 시도 (초회 + 재시도 1회)
+    for attempt in range(2):
+        raw = solar_chat(prompt, system="정확한 JSON 객체 하나만 반환하세요.")
+        result = _parse_solar_json(raw)
+        if result:
+            return result
+        if attempt == 0:
+            print(f"    ⚠ JSON 파싱 실패, 재시도...", file=sys.stderr)
 
-    # JSON 파싱
-    if raw.startswith("```"):
-        raw = raw.split("```")[1]
-        if raw.startswith("json"):
-            raw = raw[4:]
-        raw = raw.strip()
+    return {
+        "gongim_category": None,
+        "gongim_search_hint": None,
+        "mobis_search_term": None,
+        "item_category": "unknown"
+    }
 
-    try:
-        result = json.loads(raw)
-        return result
-    except json.JSONDecodeError:
-        return {
-            "gongim_category": None,
-            "gongim_search_hint": None,
-            "mobis_search_term": None,
-            "item_category": "unknown"
-        }
+
+def match_items_batch(items: list, vehicle_model: str, batch_size: int = 5) -> list:
+    """
+    여러 항목을 배치로 Solar Chat에 매핑 요청하여 API 호출 횟수를 줄인다.
+    파싱 실패 시 개별 호출로 fallback.
+    """
+    categories_text = ", ".join(GONGIM_CATEGORIES)
+    all_mappings = []
+
+    for batch_start in range(0, len(items), batch_size):
+        batch = items[batch_start:batch_start + batch_size]
+
+        items_text = ""
+        for i, item in enumerate(batch, 1):
+            desc = item.get("raw_description", "")
+            labor = item.get("labor_cost", 0)
+            parts = item.get("part_subtotal", 0)
+            part_code = item.get("raw_part_code", "")
+            line_total = item.get("line_total", 0)
+            items_text += f"{i}. {desc} | 부품코드:{part_code or '없음'} | 부품:{parts:,}원 공임:{labor:,}원 합계:{line_total:,}원\n"
+
+        prompt = f"""차량: {vehicle_model}
+공임나라 카테고리: {categories_text}
+
+아래 {len(batch)}개 정비 항목 각각에 대해 JSON 배열로 답하세요.
+각 항목:
+- gongim_category: 공임나라 카테고리 중 하나 (해당 없으면 null)
+- gongim_search_hint: 공임나라에서 찾을 작업명 (해당 없으면 null)
+- mobis_search_term: 모비스에서 검색할 부품명 3글자 이상 (부품 없으면 null)
+- item_category: labor_only / part_only / combined / painting / supply_price / etc
+
+항목 목록:
+{items_text}
+
+JSON 배열만 반환하세요. 항목 순서를 유지하세요."""
+
+        # 최대 2회 시도
+        parsed = None
+        for attempt in range(2):
+            raw = solar_chat(prompt, system="정확한 JSON 배열만 반환하세요.")
+            parsed = _parse_solar_json(raw)
+            # dict로 래핑된 경우 배열 추출
+            if isinstance(parsed, dict):
+                for key in ("items", "result", "data", "results", "mappings"):
+                    if key in parsed and isinstance(parsed[key], list):
+                        parsed = parsed[key]
+                        break
+            if isinstance(parsed, list) and len(parsed) >= len(batch):
+                parsed = parsed[:len(batch)]  # 초과분 제거
+                break
+            if attempt == 0:
+                parsed = None
+
+        if parsed and isinstance(parsed, list) and len(parsed) == len(batch):
+            all_mappings.extend(parsed)
+            print(f"  배치 {batch_start//batch_size+1}: {len(batch)}건 매핑 완료", file=sys.stderr)
+        else:
+            # 배치 실패 → 개별 호출 fallback
+            print(f"  배치 {batch_start//batch_size+1}: 배치 실패, 개별 호출로 전환", file=sys.stderr)
+            for item in batch:
+                mapping = match_single_item(item, vehicle_model)
+                all_mappings.append(mapping)
+
+    return all_mappings
 
 
 def run_smart_lookup(ocr_result: dict, maker: str = "H", cat_seq: str = "", vehicle_model: str = "") -> dict:
@@ -124,17 +196,16 @@ def run_smart_lookup(ocr_result: dict, maker: str = "H", cat_seq: str = "", vehi
     if not vehicle_model:
         vehicle_model = ocr_result.get("vehicle_car_model", "알 수 없음")
 
-    # Step 1: Solar Chat으로 항목 하나씩 매핑
-    print(f"[1/3] Solar Chat으로 {len(items)}개 항목 개별 매핑 중...", file=sys.stderr)
+    # Step 1: Solar Chat으로 항목 배치 매핑 (5개씩)
+    print(f"[1/3] Solar Chat으로 {len(items)}개 항목 매핑 중 (배치)...", file=sys.stderr)
+    raw_mappings = match_items_batch(items, vehicle_model, batch_size=5)
     mappings = []
-    for i, item in enumerate(items):
-        mapping = match_single_item(item, vehicle_model)
+    for i, (item, mapping) in enumerate(zip(items, raw_mappings)):
+        if not isinstance(mapping, dict):
+            mapping = {"gongim_category": None, "gongim_search_hint": None,
+                       "mobis_search_term": None, "item_category": "unknown"}
         mapping["line_number"] = item.get("line_number", i + 1)
         mappings.append(mapping)
-        desc = item.get("raw_description", "")[:20]
-        cat = mapping.get("gongim_category") or "-"
-        mobis = mapping.get("mobis_search_term") or "-"
-        print(f"  [{i+1}/{len(items)}] {desc}... → 공임:{cat}, 모비스:{mobis}", file=sys.stderr)
 
     mapping_by_line = {m["line_number"]: m for m in mappings}
 
@@ -166,6 +237,11 @@ def run_smart_lookup(ocr_result: dict, maker: str = "H", cat_seq: str = "", vehi
         ptno = item.get("raw_part_code", "").strip()
         if ptno and len(ptno) >= 5 and ptno not in ("A", "B", "C", "D", "F"):
             part_numbers[ptno] = item.get("raw_description", "")
+            # 부품번호 자릿수 보정: 8자리 이하이면 "00" 패딩 시도
+            if len(ptno) <= 8 and not any(c in ptno for c in "-"):
+                padded = ptno + "00"
+                if padded not in part_numbers:
+                    part_numbers[padded] = item.get("raw_description", "") + " (패딩)"
 
     # 3-B: 부품명 검색이 필요한 항목
     needed_parts = set()
@@ -251,14 +327,21 @@ def run_smart_lookup(ocr_result: dict, maker: str = "H", cat_seq: str = "", vehi
                     "time_minutes": best_match.get("time_minutes"),
                 }
 
-        # 모비스 매칭 — 부품번호 우선
-        if ptno and f"ptno:{ptno}" in mobis_results:
-            mr = mobis_results[f"ptno:{ptno}"]
+        # 모비스 매칭 — 부품번호 우선 (패딩 번호도 체크)
+        mobis_ptno_match = None
+        if ptno:
+            for candidate in [ptno, ptno + "00"]:
+                if f"ptno:{candidate}" in mobis_results and mobis_results[f"ptno:{candidate}"]["total"] > 0:
+                    mobis_ptno_match = (candidate, mobis_results[f"ptno:{candidate}"])
+                    break
+
+        if mobis_ptno_match:
+            matched_ptno, mr = mobis_ptno_match
             if mr["total"] > 0:
                 part = mr["parts"][0]
                 entry["mobis_match"] = {
                     "search_type": "part_number",
-                    "part_number": ptno,
+                    "part_number": matched_ptno,
                     "name_kr": part["name_kr"],
                     "price_krw": part["price_krw"],
                 }

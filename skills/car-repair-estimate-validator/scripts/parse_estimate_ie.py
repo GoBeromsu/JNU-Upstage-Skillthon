@@ -84,6 +84,73 @@ def parse_estimate_ie(image_path: str) -> dict:
 
     print(f"  → 추출 완료. tokens: {resp.usage.total_tokens if resp.usage else 'N/A'}", file=sys.stderr)
 
+    # OCR 후처리: 행 분리/합침 오류 보정
+    result = _postprocess_ocr(result)
+
+    return result
+
+
+def _postprocess_ocr(result: dict) -> dict:
+    """OCR 결과의 items 테이블 행 분리/합침 오류를 보정한다."""
+    items = result.get("items", [])
+    if not items:
+        return result
+
+    fixed_items = []
+    skip_next = False
+
+    for i, item in enumerate(items):
+        if skip_next:
+            skip_next = False
+            continue
+
+        desc = item.get("raw_description", "").strip()
+        labor = item.get("labor_cost", 0) or 0
+        parts = item.get("part_subtotal", 0) or 0
+        total = item.get("line_total", 0) or 0
+
+        # 1) 행 분리 보정: 짧은 텍스트(3자 이하)이고 가격이 0이면 다음 행과 합침
+        if len(desc) <= 3 and labor == 0 and parts == 0 and total == 0:
+            if i + 1 < len(items):
+                next_item = items[i + 1]
+                next_desc = next_item.get("raw_description", "").strip()
+                merged_desc = desc + next_desc
+                next_item["raw_description"] = merged_desc
+                skip_next = False  # 다음 항목이 merge된 것을 사용
+                # 현재 항목은 스킵, 다음 항목의 desc만 업데이트
+                items[i + 1]["raw_description"] = merged_desc
+                print(f"  [OCR 보정] 행 병합: '{desc}' + '{next_desc}' → '{merged_desc}'", file=sys.stderr)
+                continue
+
+        # 2) 가격 0이고 텍스트만 있는 짧은 행은 이전 행에 합침
+        if labor == 0 and parts == 0 and total == 0 and len(desc) > 0 and fixed_items:
+            prev = fixed_items[-1]
+            prev_desc = prev.get("raw_description", "")
+            # 이전 항목도 가격이 0이면 합치지 않음
+            prev_total = prev.get("line_total", 0) or 0
+            if prev_total == 0 and len(desc) <= 10:
+                prev["raw_description"] = prev_desc + desc
+                print(f"  [OCR 보정] 행 병합(뒤): '{prev_desc}' + '{desc}' → '{prev['raw_description']}'", file=sys.stderr)
+                continue
+
+        fixed_items.append(item)
+
+    # 3) 차량명 순서 보정: "SUV 스포티지 The" → "The SUV 스포티지" 패턴
+    car_model = result.get("vehicle_car_model", "")
+    if car_model:
+        # "SUV 모델명 The" → "The SUV 모델명"
+        import re
+        m = re.match(r'^(SUV\s+)(.+?)\s+(The|the|THE)$', car_model)
+        if m:
+            fixed = f"{m.group(3)} {m.group(1).strip()} {m.group(2)}"
+            print(f"  [OCR 보정] 차량명: '{car_model}' → '{fixed}'", file=sys.stderr)
+            result["vehicle_car_model"] = fixed
+
+    # 라인 번호 재정렬
+    for idx, item in enumerate(fixed_items, 1):
+        item["line_number"] = idx
+
+    result["items"] = fixed_items
     return result
 
 

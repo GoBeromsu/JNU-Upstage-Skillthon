@@ -13,5 +13,5 @@ build/
 .omx/
 .claude/
 .codex/
-# 테스트 이미지/결과
-skills/docs/test_*
+# 개발 테스트 디렉토리 (제출 대상 아님)
+skills/docs/

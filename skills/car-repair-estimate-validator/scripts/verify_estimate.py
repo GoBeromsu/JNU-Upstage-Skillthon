@@ -56,6 +56,20 @@ VERDICT_KR = {
 
 # ─── 전처리 ──────────────────────────────────────────────────────────
 
+def _clean_work_type(work_type: str) -> str:
+    """공임나라 work_type의 여러 줄 설명을 첫 줄 핵심만 추출하고 공백 정리."""
+    import re
+    text = work_type.replace("\r\n", "\n").replace("\r", "\n").strip()
+    if not text:
+        return ""
+    lines = [l.strip() for l in text.split("\n") if l.strip()]
+    main_lines = [l for l in lines if not l.startswith("*")]
+    result = main_lines[0] if main_lines else (lines[0] if lines else text)
+    # 연속 공백 정리
+    result = re.sub(r'\s{2,}', ' ', result).strip()
+    return result
+
+
 def _classify_item(item: dict) -> str:
     """실제 가격 필드 기반 분류 (Solar Chat item_category 무시)."""
     labor = item.get("estimate_labor", 0) or 0
@@ -184,7 +198,7 @@ def _compare_labor(item: dict, quality: dict) -> dict | None:
 
     return {
         "reference_source": "공임나라",
-        "reference_description": gm.get("work_type", "").replace("\r\n", " ").strip(),
+        "reference_description": _clean_work_type(gm.get("work_type", "")),
         "reference_price": ref_price,
         "estimate_price": labor,
         "match_reliable": quality["gongim_reliable"],
