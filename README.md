@@ -69,6 +69,9 @@ UPSTAGE_API_KEY=up_xxxxxxxxxxxxxxxxxxxx
 
 ```bash
 pip install openai python-dotenv requests playwright
+or
+pip3 install openai python-dotenv requests playwright
+
 playwright install chromium
 ```
 
