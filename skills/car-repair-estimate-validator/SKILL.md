@@ -175,7 +175,6 @@ car-repair-estimate-validator/
 │   ├── labor-synonyms.json              # 공임 동의어 사전
 │   ├── parts-synonyms.json             # 부품 동의어 사전
 │   └── examples/                       # 데모용 견적서 이미지 (런타임 미참조)
-│       ├── README.md
 │       ├── ray.png
 │       └── sportage.jpeg
 └── assets/
