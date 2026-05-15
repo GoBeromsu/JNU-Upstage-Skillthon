@@ -19,7 +19,7 @@ from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# .env 파일 로드 (skills/solar-skill-creator/assets/.env.example 경로)
+# .env 파일 로드 (solar-skill-creator/assets/.env 또는 본 스킬 assets/.env)
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent  # skills/docs/scripts → project root
 ENV_PATHS = [

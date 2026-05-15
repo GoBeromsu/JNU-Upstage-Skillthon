@@ -173,8 +173,23 @@ car-repair-estimate-validator/
 │   ├── mobis-models.json                 # 모비스 차량 모델 목록 (486개)
 │   ├── standard-repair-times.json        # 표준정비시간 데이터 (63항목×6차종)
 │   ├── labor-synonyms.json              # 공임 동의어 사전
-│   └── parts-synonyms.json             # 부품 동의어 사전
+│   ├── parts-synonyms.json             # 부품 동의어 사전
+│   └── examples/                       # 데모용 견적서 이미지 (런타임 미참조)
+│       ├── README.md
+│       ├── ray.png
+│       └── sportage.jpeg
 └── assets/
     ├── .env.example            # API 키 템플릿
     └── .env                    # 실제 API 키 (Git 제외)
 ```
+
+## 체험하기 (데모)
+
+별도 견적서가 없어도 `references/examples/` 의 샘플 이미지로 스킬을 체험할 수 있다.
+
+Claude Code 세션에서 아래처럼 트리거하라:
+
+- "견적서 검증해줘. 파일은 `skills/car-repair-estimate-validator/references/examples/ray.png` 야"
+- "이 견적서 바가지 아닌지 봐줘 → `skills/car-repair-estimate-validator/references/examples/sportage.jpeg`"
+
+이미지를 직접 첨부(드래그·드롭/붙여넣기)해도 동일하게 동작한다.
