@@ -21,12 +21,12 @@
   position: absolute;
   top: 16px;
   left: 16px;
-  padding: 12px 24px;
+  padding: 9px 18px;
   background: #3b82f6;
   color: #fff;
   border: none;
   border-radius: 28px;
-  font-size: 22px;
+  font-size: 16px;
   font-weight: 700;
   box-shadow: 0 4px 20px rgba(59,130,246,0.40);
   cursor: pointer;

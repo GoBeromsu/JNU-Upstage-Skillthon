@@ -1,16 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/database');
+const { uploadFile } = require('../utils/storage');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-const PROOF_DIR = path.join(__dirname, '../../uploads/proof');
-if (!fs.existsSync(PROOF_DIR)) fs.mkdirSync(PROOF_DIR, { recursive: true });
-
+// 메모리 스토리지 사용 (R2 / 로컬 모두 buffer로 처리)
 const upload = multer({
-  dest: PROOF_DIR,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 },
 });
 
@@ -26,11 +24,19 @@ router.post('/', upload.array('proofFiles', 5), async (req, res) => {
       return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
     }
 
-    const proofFiles = (req.files || []).map(f => ({
-      originalName: f.originalname,
-      url:      `/uploads/proof/${f.filename}`,
-      mimetype: f.mimetype,
-    }));
+    // 파일 업로드 (R2 or 로컬)
+    const proofFiles = await Promise.all(
+      (req.files || []).map(async (f) => {
+        const ext = path.extname(f.originalname) || '';
+        const filename = `${uuidv4()}${ext}`;
+        const url = await uploadFile(f.buffer, filename, f.mimetype);
+        return {
+          originalName: f.originalname,
+          url,
+          mimetype: f.mimetype,
+        };
+      })
+    );
 
     const id = uuidv4().slice(0, 8);
 
