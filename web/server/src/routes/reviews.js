@@ -15,7 +15,7 @@ const upload = multer({
 });
 
 // POST /api/reviews  — 후기 제출
-router.post('/', upload.array('proofFiles', 5), (req, res) => {
+router.post('/', upload.array('proofFiles', 5), async (req, res) => {
   try {
     const {
       businessId, businessName, area, industry,
@@ -28,13 +28,13 @@ router.post('/', upload.array('proofFiles', 5), (req, res) => {
 
     const proofFiles = (req.files || []).map(f => ({
       originalName: f.originalname,
-      url:      `/uploads/proof/${f.filename}`,   // 브라우저에서 바로 쓸 수 있는 URL
+      url:      `/uploads/proof/${f.filename}`,
       mimetype: f.mimetype,
     }));
 
     const id = uuidv4().slice(0, 8);
 
-    db.insertReview({
+    await db.insertReview({
       id,
       business_id:    businessId || `${businessName}_${area}`,
       business_name:  businessName,
@@ -60,14 +60,19 @@ router.post('/', upload.array('proofFiles', 5), (req, res) => {
 });
 
 // GET /api/reviews/my  — 내 후기 목록
-router.get('/my', (req, res) => {
-  const userId = req.query.userId;
-  if (!userId) return res.json([]);
-  const all = db.getPendingReviews();
-  const rows = all
-    .filter(r => r.user_id === userId)
-    .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
-  res.json(rows);
+router.get('/my', async (req, res) => {
+  try {
+    const userId = req.query.userId;
+    if (!userId) return res.json([]);
+    const all = await db.getPendingReviews();
+    const rows = all
+      .filter(r => r.user_id === userId)
+      .sort((a, b) => new Date(b.submitted_at) - new Date(a.submitted_at));
+    res.json(rows);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 module.exports = router;

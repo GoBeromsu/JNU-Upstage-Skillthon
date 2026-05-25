@@ -3,6 +3,7 @@ require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const db = require('./db/database');
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -30,6 +31,11 @@ if (fs.existsSync(clientDist)) {
   app.get('*', (req, res) => res.sendFile(path.join(clientDist, 'index.html')));
 }
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[클린알바맵] 서버 실행 중: http://0.0.0.0:${PORT}`);
+db.init().then(() => {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[클린알바맵] 서버 실행 중: http://0.0.0.0:${PORT}`);
+  });
+}).catch(err => {
+  console.error('[DB] 초기화 실패:', err);
+  process.exit(1);
 });

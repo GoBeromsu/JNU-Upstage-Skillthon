@@ -56,9 +56,7 @@ function runAddReview(payload) {
 /* ── 파일 경로 → 브라우저 URL 변환 ──────────────────────── */
 function toFileUrl(file) {
   if (!file) return file;
-  // 이미 URL 형식이면 그대로
   if (file.url) return file;
-  // 구버전: path(절대경로)만 있는 경우 → 파일명만 추출해 URL 생성
   if (file.path) {
     const filename = file.path.replace(/\\/g, '/').split('/').pop();
     return { ...file, url: `/uploads/proof/${filename}` };
@@ -82,43 +80,53 @@ function serializeReview(r) {
 }
 
 /* ── GET /api/admin/pending ──────────────────────────────── */
-router.get('/pending', adminAuth, (req, res) => {
-  const rows = db.getPendingReviews('pending');
-  res.json(rows.map(serializeReview));
+router.get('/pending', adminAuth, async (req, res) => {
+  try {
+    const rows = await db.getPendingReviews('pending');
+    res.json(rows.map(serializeReview));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 /* ── GET /api/admin/all ──────────────────────────────────── */
-router.get('/all', adminAuth, (req, res) => {
-  const rows = db.getPendingReviews();
-  res.json(rows.slice(0, 200).map(serializeReview));
+router.get('/all', adminAuth, async (req, res) => {
+  try {
+    const rows = await db.getPendingReviews();
+    res.json(rows.slice(0, 200).map(serializeReview));
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 /* ── POST /api/admin/approve/:id ─────────────────────────── */
 router.post('/approve/:id', adminAuth, async (req, res) => {
-  const review = db.findReview(req.params.id);
-  if (!review) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
-
-  const flags = typeof review.criteria_flags === 'string'
-    ? JSON.parse(review.criteria_flags || '{}')
-    : (review.criteria_flags || {});
-
-  const payload = {
-    business_id:    review.business_id,
-    name:           review.business_name,
-    area:           review.area,
-    industry:       review.industry,
-    criteria_flags: flags,
-    review_text:    review.purified_text || review.review_text || '',
-  };
-
   try {
+    const review = await db.findReview(req.params.id);
+    if (!review) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
+
+    const flags = typeof review.criteria_flags === 'string'
+      ? JSON.parse(review.criteria_flags || '{}')
+      : (review.criteria_flags || {});
+
+    const payload = {
+      business_id:    review.business_id,
+      name:           review.business_name,
+      area:           review.area,
+      industry:       review.industry,
+      criteria_flags: flags,
+      review_text:    review.purified_text || review.review_text || '',
+    };
+
     const addResult = await runAddReview(payload);
     console.log('[Admin] add_review 결과:', addResult);
 
-    db.updateReviewStatus(req.params.id, 'approved');
+    await db.updateReviewStatus(req.params.id, 'approved');
 
     if (review.user_id) {
-      db.addNotification(
+      await db.addNotification(
         review.user_id,
         `"${review.business_name}" 후기가 승인되어 지도에 반영되었습니다.`
       );
@@ -132,21 +140,26 @@ router.post('/approve/:id', adminAuth, async (req, res) => {
 });
 
 /* ── POST /api/admin/reject/:id ──────────────────────────── */
-router.post('/reject/:id', adminAuth, (req, res) => {
-  const { reason = '검수 기준 미달' } = req.body;
-  const review = db.findReview(req.params.id);
-  if (!review) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
+router.post('/reject/:id', adminAuth, async (req, res) => {
+  try {
+    const { reason = '검수 기준 미달' } = req.body;
+    const review = await db.findReview(req.params.id);
+    if (!review) return res.status(404).json({ error: '리뷰를 찾을 수 없습니다.' });
 
-  db.updateReviewStatus(req.params.id, 'rejected', { reject_reason: reason });
+    await db.updateReviewStatus(req.params.id, 'rejected', { reject_reason: reason });
 
-  if (review.user_id) {
-    db.addNotification(
-      review.user_id,
-      `"${review.business_name}" 후기가 반려되었습니다. 사유: ${reason}`
-    );
+    if (review.user_id) {
+      await db.addNotification(
+        review.user_id,
+        `"${review.business_name}" 후기가 반려되었습니다. 사유: ${reason}`
+      );
+    }
+
+    res.json({ status: 'rejected', id: req.params.id });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: e.message });
   }
-
-  res.json({ status: 'rejected', id: req.params.id });
 });
 
 module.exports = router;
