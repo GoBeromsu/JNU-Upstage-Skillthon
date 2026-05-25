@@ -24,17 +24,18 @@ router.post('/', upload.array('proofFiles', 5), async (req, res) => {
       return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
     }
 
-    // 파일 업로드 (R2 or 로컬)
+    // 파일 업로드 (R2 or 로컬) — 업로드 실패해도 후기는 저장
     const proofFiles = await Promise.all(
       (req.files || []).map(async (f) => {
         const ext = path.extname(f.originalname) || '';
         const filename = `${uuidv4()}${ext}`;
-        const url = await uploadFile(f.buffer, filename, f.mimetype);
-        return {
-          originalName: f.originalname,
-          url,
-          mimetype: f.mimetype,
-        };
+        try {
+          const url = await uploadFile(f.buffer, filename, f.mimetype);
+          return { originalName: f.originalname, url, mimetype: f.mimetype };
+        } catch (uploadErr) {
+          console.error('[Reviews] 파일 업로드 실패:', uploadErr.message);
+          return { originalName: f.originalname, url: null, mimetype: f.mimetype };
+        }
       })
     );
 

@@ -1,9 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import styles from './ContractAnalyzePage.module.css'
 
 export default function ContractAnalyzePage() {
   const navigate = useNavigate()
+  const { requireLogin } = useAuth()
+
+  useEffect(() => {
+    if (!requireLogin('/contract')) navigate('/')
+  }, []) // eslint-disable-line
 
   const [file,    setFile]    = useState(null)
   const [imgUrl,  setImgUrl]  = useState(null)
