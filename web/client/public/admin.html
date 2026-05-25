@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>관리자 대시보드 - 전남대 클린알바맵</title>
+  <style>
+    :root { --primary: #3b82f6; --green: #22c55e; --red: #ef4444; --border: #e2e8f0; --bg: #f8fafc; --text: #1e293b; --sub: #64748b; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Malgun Gothic', sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 24px; max-width: 960px; margin: 0 auto; }
+    h1 { font-size: 22px; font-weight: 800; margin: 12px 0 4px; }
+    .sub { color: var(--sub); font-size: 14px; margin-bottom: 24px; }
+    .back { color: var(--primary); font-size: 14px; text-decoration: none; }
+    .card { background: #fff; border: 1.5px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 14px; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .biz-name { font-size: 17px; font-weight: 700; }
+    .biz-meta { font-size: 13px; color: var(--sub); margin-top: 3px; }
+    .actions { display: flex; gap: 8px; }
+    .btn-approve { background: var(--green); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-reject { background: var(--red); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .flag-wrap { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+    .flag-ok { background: #dcfce7; color: #16a34a; padding: 3px 8px; border-radius: 20px; font-size: 12px; }
+    .flag-warn { background: #fee2e2; color: #dc2626; padding: 3px 8px; border-radius: 20px; font-size: 12px; }
+    .review-box { background: var(--bg); border-radius: 8px; padding: 10px; font-size: 13px; color: #334155; line-height: 1.6; }
+    .badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge.pending { background: #fef9c3; color: #854d0e; }
+    .badge.approved { background: #dcfce7; color: #16a34a; }
+    .badge.rejected { background: #fee2e2; color: #dc2626; }
+    .empty { text-align: center; color: var(--sub); padding: 60px; font-size: 15px; }
+    .count { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+    .token-box { display: flex; gap: 8px; margin-bottom: 20px; }
+    .token-box input { flex: 1; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; outline: none; }
+    .token-box button { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .proof-files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .proof-file { background: #dbeafe; color: #1d4ed8; padding: 3px 10px; border-radius: 20px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <a href="/" class="back">← 메인으로</a>
+  <h1>🔧 관리자 대시보드</h1>
+  <p class="sub">검수 대기 중인 후기를 승인하거나 반려할 수 있습니다.</p>
+
+  <div class="token-box">
+    <input type="password" id="tokenInput" placeholder="관리자 토큰 입력 (기본: admin1234)" value="admin1234" />
+    <button onclick="loadPending()">조회</button>
+  </div>
+
+  <div id="count" class="count"></div>
+  <div id="list"></div>
+
+  <script>
+    const API = window.location.origin;
+    let token = 'admin1234';
+
+    async function loadPending() {
+      token = document.getElementById('tokenInput').value;
+      const res = await fetch(`${API}/api/admin/pending`, { headers: { 'x-admin-token': token } });
+      if (!res.ok) { alert('인증 실패'); return; }
+      const list = await res.json();
+      render(list);
+    }
+
+    function render(list) {
+      document.getElementById('count').textContent = `검수 대기: ${list.length}건`;
+      if (!list.length) {
+        document.getElementById('list').innerHTML = '<div class="empty">검수 대기 중인 후기가 없습니다 ✅</div>';
+        return;
+      }
+      document.getElementById('list').innerHTML = list.map(r => {
+        const flags = Object.entries(r.criteriaFlags || {}).map(([k, v]) =>
+          `<span class="${v ? 'flag-warn' : 'flag-ok'}">${v ? '⚠ ' : '✓ '}${k}</span>`
+        ).join('');
+        const proofFiles = (r.proofFiles || []).map(f =>
+          `<span class="proof-file">📎 ${f.originalName}</span>`
+        ).join('');
+        const reviewText = r.purified_text || r.review_text;
+        return `
+          <div class="card" id="rc-${r.id}">
+            <div class="card-top">
+              <div>
+                <div class="biz-name">${r.business_name} <span class="badge pending">검수 대기</span></div>
+                <div class="biz-meta">${r.area} · ${r.industry} · 제출: ${r.submitted_at}</div>
+              </div>
+              <div class="actions">
+                <button class="btn-approve" onclick="approve('${r.id}')">✅ 승인</button>
+                <button class="btn-reject" onclick="reject('${r.id}')">❌ 반려</button>
+              </div>
+            </div>
+            <div class="flag-wrap">${flags}</div>
+            ${r.coworker_count ? `<span class="badge" style="background:#dbeafe;color:#1d4ed8;">👥 ${r.coworker_count}</span><br><br>` : ''}
+            ${reviewText ? `<div class="review-box">${reviewText}</div>` : ''}
+            ${proofFiles ? `<div class="proof-files">${proofFiles}</div>` : ''}
+          </div>`;
+      }).join('');
+    }
+
+    async function approve(id) {
+      if (!confirm('이 후기를 승인하여 지도에 반영하시겠습니까?')) return;
+      const res = await fetch(`${API}/api/admin/approve/${id}`, {
+        method: 'POST', headers: { 'x-admin-token': token }
+      });
+      if (!res.ok) { alert('승인 실패: ' + (await res.json()).error); return; }
+      document.getElementById(`rc-${id}`)?.remove();
+      alert('승인되었습니다. 지도에 반영되었습니다.');
+      loadPending();
+    }
+
+    async function reject(id) {
+      const reason = prompt('반려 사유를 입력하세요:', '검수 기준 미달');
+      if (reason === null) return;
+      const res = await fetch(`${API}/api/admin/reject/${id}`, {
+        method: 'POST',
+        headers: { 'x-admin-token': token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+      if (!res.ok) { alert('반려 실패'); return; }
+      document.getElementById(`rc-${id}`)?.remove();
+      alert('반려되었습니다.');
+      loadPending();
+    }
+
+    loadPending();
+  </script>
+</body>
+</html>

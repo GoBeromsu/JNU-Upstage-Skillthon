@@ -139,7 +139,7 @@ RESPONSE_SCHEMA = {
 
 def purify_review(review_text: str) -> dict:
     response = client.chat.completions.create(
-        model="solar-pro3",
+        model="solar-pro",
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": f"다음 알바 후기를 분석하고 순화해주세요:\n\n{review_text}"}

@@ -1,0 +1,7 @@
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.card { background: var(--bg); border-radius: 12px; padding: 16px; }
+.icon { font-size: 24px; margin-bottom: 6px; }
+.title { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.desc { font-size: 13px; color: var(--text-sub); line-height: 1.6; }
+.footer { display: flex; gap: 10px; flex-wrap: wrap; }
+@media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }

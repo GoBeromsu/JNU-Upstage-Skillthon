@@ -1,0 +1,64 @@
+:root {
+  --green: #22c55e;
+  --yellow: #eab308;
+  --orange: #f97316;
+  --red: #ef4444;
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #1e293b;
+  --text-sub: #64748b;
+  --header-h: 80px;
+  --sidebar-w: 340px;
+  --radius: 12px;
+  --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif; background: var(--bg); color: var(--text); }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+.btn-primary { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-size: 14px; font-weight: 600; transition: background .15s; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
+.btn-ghost { background: none; border: none; color: var(--text-sub); font-size: 14px; padding: 6px 12px; border-radius: 8px; transition: background .15s; }
+.btn-ghost:hover { background: var(--bg); color: var(--text); }
+.btn-outline { background: none; border: 1.5px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 16px; font-size: 14px; transition: border-color .15s; text-decoration: none; display: inline-block; }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+.score-badge { padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; white-space: nowrap; }
+.score-badge.green { background: var(--green); }
+.score-badge.yellow { background: var(--yellow); color: #1e293b; }
+.score-badge.orange { background: var(--orange); }
+.score-badge.red { background: var(--red); }
+.tag { display: inline-flex; align-items: center; gap: 3px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+.tag.ok { background: #dcfce7; color: #16a34a; }
+.tag.warn { background: #fee2e2; color: #dc2626; }
+.tag.info { background: #dbeafe; color: #1d4ed8; }
+.modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; animation: fadeIn .15s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal { background: var(--surface); border-radius: 16px; padding: 28px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: var(--shadow-lg); animation: slideUp .2s ease; }
+.modal.large { max-width: 800px; }
+@keyframes slideUp { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: var(--text-sub); line-height: 1; }
+.modal-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+.modal-subtitle { font-size: 14px; color: var(--text-sub); margin-bottom: 20px; }
+.risk-badge { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; color: #fff; }
+.risk-badge.HIGH { background: var(--red); }
+.risk-badge.MEDIUM { background: var(--orange); }
+.risk-badge.LOW { background: var(--yellow); color: #1e293b; }
+.risk-badge.SAFE { background: var(--green); }
+.loading-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,.35); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+.loading-spinner { width: 48px; height: 48px; border-radius: 50%; border: 5px solid rgba(255,255,255,.3); border-top-color: #fff; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { color: #fff; font-weight: 600; font-size: 15px; }
+.form-row { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.form-row label { font-size: 13px; font-weight: 600; color: var(--text-sub); }
+.form-row input, .form-row select { border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 12px; font-size: 14px; outline: none; transition: border-color .15s; }
+.form-row input:focus, .form-row select:focus { border-color: var(--primary); }
+.section-title { font-size: 15px; font-weight: 700; margin: 20px 0 4px; }
+.section-desc { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; }
+textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 10px 12px; font-size: 14px; outline: none; resize: vertical; transition: border-color .15s; }
+textarea:focus { border-color: var(--primary); }
+.full-width { width: 100%; }

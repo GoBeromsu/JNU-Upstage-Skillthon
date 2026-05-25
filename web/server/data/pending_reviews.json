@@ -1,0 +1,61 @@
+[
+  {
+    "id": "1cf8be5d",
+    "business_id": "367655391",
+    "business_name": "BBQ 전남대후문점",
+    "area": "광주 북구 용봉동 152-50",
+    "industry": "음식점",
+    "criteria_flags": "{\"근로계약서 미작성\":false,\"최저시급 미준수\":false,\"주휴수당 미지급\":true,\"휴게시간 부족\":true,\"급여 지급 지연\":false,\"사전 협의 없는 스케줄 변경\":true,\"반복적이고 지속적인 대타 요구 및 강요\":false,\"초과근무 급여 미지급\":true}",
+    "review_text": "사장님 개같아요",
+    "purified_text": "근무 중 관리자의 태도에 심한 불쾌감을 경험했습니다.",
+    "proof_files": "[{\"originalName\":\"clean_alba_example.png\",\"path\":\"C:\\\\Users\\\\ohyou\\\\JNU-Upstage-Skillthon\\\\web\\\\server\\\\uploads\\\\proof\\\\e08282c87fe2869da6594f0d82265404\",\"mimetype\":\"image/png\"}]",
+    "coworker_count": "1인 근무",
+    "status": "approved",
+    "submitted_at": "2026. 5. 25. PM 4:57:08",
+    "reviewed_at": "2026. 5. 25. PM 6:17:14"
+  },
+  {
+    "id": "74cc6620",
+    "business_id": "26628385",
+    "business_name": "BHC치킨 전남대후문점",
+    "area": "광주 북구 용봉동 152-7",
+    "industry": "음식점",
+    "criteria_flags": "{\"근로계약서 미작성\":true,\"최저시급 미준수\":false,\"주휴수당 미지급\":true,\"휴게시간 부족\":false,\"급여 지급 지연\":true,\"사전 협의 없는 스케줄 변경\":false,\"반복적이고 지속적인 대타 요구 및 강요\":false,\"초과근무 급여 미지급\":false}",
+    "review_text": "너무 좋았어요",
+    "purified_text": "매우 만족스러운 근무 경험이었습니다",
+    "proof_files": "[{\"originalName\":\"clean_alba_example.png\",\"path\":\"C:\\\\Users\\\\ohyou\\\\JNU-Upstage-Skillthon\\\\web\\\\server\\\\uploads\\\\proof\\\\ffed032c918c24cbb2905a1c4c195baa\",\"mimetype\":\"image/png\"}]",
+    "coworker_count": "4~5명",
+    "status": "approved",
+    "submitted_at": "2026. 5. 25. PM 5:01:46",
+    "reviewed_at": "2026. 5. 25. PM 6:17:19"
+  },
+  {
+    "id": "5b608b9b",
+    "business_id": "탑독PC방_후문점",
+    "business_name": "탑독 PC방",
+    "area": "후문",
+    "industry": "PC방",
+    "criteria_flags": "{\"근로계약서 미작성\":false,\"최저시급 미준수\":true,\"주휴수당 미지급\":true,\"휴게시간 부족\":false,\"급여 지급 지연\":false,\"사전 협의 없는 스케줄 변경\":false,\"반복적이고 지속적인 대타 요구 및 강요\":false,\"초과근무 급여 미지급\":false}",
+    "review_text": "",
+    "purified_text": "",
+    "proof_files": "[{\"originalName\":\"clean_alba_example.png\",\"path\":\"C:\\\\Users\\\\ohyou\\\\JNU-Upstage-Skillthon\\\\web\\\\server\\\\uploads\\\\proof\\\\e638b7bb1fcb066c26f408ed49bdb066\",\"mimetype\":\"image/png\"}]",
+    "coworker_count": "2~3명",
+    "status": "approved",
+    "submitted_at": "2026. 5. 25. PM 5:03:09",
+    "reviewed_at": "2026. 5. 25. PM 6:17:23"
+  },
+  {
+    "id": "d3fbf099",
+    "business_id": "메가MGC커피_전대정문점",
+    "business_name": "메가MGC커피 전대정문점",
+    "area": "정문",
+    "industry": "카페",
+    "criteria_flags": "{\"근로계약서 미작성\":false,\"최저시급 미준수\":true,\"주휴수당 미지급\":true,\"휴게시간 부족\":false,\"급여 지급 지연\":true,\"사전 협의 없는 스케줄 변경\":false,\"반복적이고 지속적인 대타 요구 및 강요\":true,\"초과근무 급여 미지급\":false}",
+    "review_text": "같이 일하는 사람 성격 너무 에바다",
+    "purified_text": "근무 중 동료와의 의사소통에서 어려움을 겪은 경험이 있습니다",
+    "proof_files": "[{\"originalName\":\"clean_alba_example.png\",\"url\":\"/uploads/proof/be2e5d3753b901b7f1eb83faeb89d3ab\",\"mimetype\":\"image/png\"}]",
+    "coworker_count": "2~3명",
+    "status": "pending",
+    "submitted_at": "2026. 5. 25. PM 6:22:04"
+  }
+]

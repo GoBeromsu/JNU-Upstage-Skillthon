@@ -1,12 +1,28 @@
+# 환경변수 (절대 커밋 금지)
 .env
+**/.env
+
+# Node 패키지
+node_modules/
+**/node_modules/
+
+# 빌드 산출물
+dist/
+build/
+web/client/dist/
+
+# 업로드 파일 (사용자 데이터)
+web/server/uploads/
+
+# Python
 __pycache__/
 *.pyc
 *.pyo
 .venv/
 venv/
 *.egg-info/
-dist/
-build/
+
+# 기타
 .DS_Store
 *.skill
 .omc/

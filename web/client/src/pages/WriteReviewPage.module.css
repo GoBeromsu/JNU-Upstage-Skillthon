@@ -1,0 +1,98 @@
+.page { min-height: 100vh; background: var(--bg); }
+
+.topBar {
+  position: sticky; top: 0; z-index: 100;
+  background: #fff; border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.backBtn {
+  background: none; border: none;
+  font-size: 14px; font-weight: 600; color: var(--text-sub);
+  cursor: pointer; padding: 6px 0;
+}
+.backBtn:hover { color: var(--text); }
+.topTitle { font-size: 16px; font-weight: 700; }
+
+.content { max-width: 640px; margin: 0 auto; padding: 24px 20px; }
+
+/* 사업장 카드 */
+.bizCard {
+  display: flex; align-items: center; gap: 12px;
+  background: #fff; border-radius: 12px;
+  padding: 16px; box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.bizName { font-size: 15px; font-weight: 700; }
+.bizMeta { font-size: 13px; color: var(--text-sub); margin-top: 2px; }
+
+/* 섹션 */
+.section {
+  background: #fff; border-radius: 12px;
+  padding: 20px; box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.sectionTitle { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+.sectionDesc  { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; }
+
+/* 체크리스트 */
+.checklist { display: flex; flex-direction: column; gap: 6px; }
+.checkItem {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  cursor: pointer; font-size: 14px;
+  transition: border-color .15s, background .15s;
+  user-select: none;
+}
+.checkItem:hover  { border-color: #94a3b8; background: #f8fafc; }
+.checkItem.checked {
+  border-color: var(--red);
+  background: #fef2f2; color: #dc2626;
+}
+.checkItem input { accent-color: var(--red); width: 16px; height: 16px; }
+
+/* 파일 */
+.fileInput { width: 100%; font-size: 13px; }
+.fileList  { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+
+/* AI 순화 */
+.purifyBox  { margin-top: 12px; }
+.purifyHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.purifyIssues { font-size: 12px; color: var(--text-sub); }
+.purifyOption {
+  padding: 10px 12px; border-radius: 8px;
+  border: 1.5px solid var(--border);
+  cursor: pointer; margin-bottom: 6px;
+  transition: border-color .15s;
+}
+.purifyOption:hover  { border-color: var(--primary); }
+.purifyOption.selected { border-color: var(--primary); background: #eff6ff; }
+.optStyle { font-size: 11px; font-weight: 700; color: var(--primary); margin-bottom: 3px; }
+.optText  { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+/* 장소 검색 (진입점 A) */
+.placeInput {
+  flex: 1; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 8px 12px; font-size: 14px; outline: none;
+}
+.placeInput:focus { border-color: var(--primary); }
+.placeList {
+  border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden;
+}
+.placeItem {
+  padding: 10px 14px; cursor: pointer;
+  border-bottom: 1px solid var(--border); background: #fff;
+  transition: background .12s;
+}
+.placeItem:last-child { border-bottom: none; }
+.placeItem:hover { background: #f0f6ff; }
+
+.selectedPlace {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; background: #eff6ff; border-radius: 8px;
+  border: 1.5px solid #bfdbfe;
+}
+
+/* 제출 */
+.submitArea { padding-bottom: 40px; }

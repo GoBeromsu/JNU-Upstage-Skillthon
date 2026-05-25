@@ -1,0 +1,145 @@
+.page { min-height: 100vh; background: var(--bg); }
+
+.topBar {
+  position: sticky; top: 0; z-index: 100;
+  background: #fff; border-bottom: 1px solid var(--border);
+  padding: 12px 20px;
+  display: flex; align-items: center; gap: 16px;
+}
+.backBtn {
+  background: none; border: none;
+  font-size: 14px; font-weight: 600; color: var(--text-sub);
+  cursor: pointer; padding: 6px 0;
+}
+.backBtn:hover { color: var(--text); }
+.topTitle { font-size: 16px; font-weight: 700; }
+
+/* 2단 레이아웃 */
+.body {
+  display: flex;
+  gap: 0;
+  height: calc(100vh - 49px);
+}
+
+/* 왼쪽: 업로드 / 결과 */
+.left {
+  flex: 0 0 400px;
+  overflow-y: auto;
+  padding: 24px 20px;
+  border-right: 1px solid var(--border);
+  background: #fff;
+}
+
+/* 오른쪽: 이미지 미리보기 */
+.right {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--bg);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* 업로드 */
+.uploadZone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 32px; text-align: center; cursor: pointer;
+  transition: border-color .15s, background .15s; margin-bottom: 16px;
+}
+.uploadZone:hover { border-color: var(--primary); background: #eff6ff; }
+.uploadZone.hasFile { border-color: #22c55e; background: #f0fdf4; }
+.uploadIcon { font-size: 32px; margin-bottom: 8px; }
+.uploadHint { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+
+.errorBox {
+  background: #fee2e2; color: #991b1b;
+  border-radius: 10px; padding: 10px 14px;
+  margin-bottom: 12px; font-size: 13px;
+}
+
+/* 결과 */
+.riskBanner {
+  border-radius: 10px; padding: 12px 16px;
+  font-weight: 700; text-align: center; font-size: 15px; margin-bottom: 16px;
+}
+.SAFE   { background: #dcfce7; color: #16a34a; }
+.LOW    { background: #fef9c3; color: #854d0e; }
+.MEDIUM { background: #ffedd5; color: #9a3412; }
+.HIGH   { background: #fee2e2; color: #991b1b; }
+
+.infoGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.infoItem { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+.infoLabel { font-size: 11px; color: var(--text-sub); }
+.infoValue { font-size: 14px; font-weight: 600; margin-top: 2px; }
+
+.subTitle     { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.subTitleWarn { font-size: 13px; font-weight: 700; color: var(--red); margin: 12px 0 6px; }
+.subTitleInfo { font-size: 13px; font-weight: 700; color: #d97706; margin: 12px 0 6px; }
+
+.complianceGrid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 6px; margin-bottom: 12px;
+}
+.compItem {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg); border-radius: 8px;
+  padding: 8px 10px; font-size: 13px;
+}
+.list { font-size: 13px; padding-left: 18px; line-height: 1.8; }
+
+/* 이미지 영역 */
+.imageWrap {
+  position: relative;
+  width: 100%;
+  max-width: 720px;
+  border-radius: 12px;
+  overflow: visible;      /* 라벨 태그가 이미지 밖으로 나올 수 있도록 */
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  background: #fff;
+}
+
+/* img에 object-fit 없이 width:100% → offsetWidth = 실제 표시 폭 → 좌표 스케일 정확 */
+.contractImg {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+}
+
+/* Canvas는 img 위에 정확히 겹침 */
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  pointer-events: none;
+  border-radius: 12px;
+}
+
+/* 범례 */
+.legendBox {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 12px;
+  padding: 8px 12px;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+.legendItem {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 600; color: #1e293b;
+}
+.legendDot {
+  width: 12px; height: 12px;
+  border-radius: 3px; flex-shrink: 0;
+  opacity: 0.85;
+}
+
+/* 미리보기 없음 */
+.noPreview {
+  margin: auto;
+  text-align: center;
+  color: var(--text-sub);
+  font-size: 14px;
+  line-height: 1.8;
+  white-space: pre-line;
+  padding: 60px 20px;
+}

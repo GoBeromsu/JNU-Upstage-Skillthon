@@ -204,9 +204,12 @@ def load_businesses() -> list:
                 cautions, highlights = [], []
 
             businesses.append({
+                "business_id": data["business_id"],
                 "name": data["name"],
                 "area": data["area"],
                 "industry": data["industry"],
+                "lat": data.get("lat"),
+                "lon": data.get("lon"),
                 "clean_score": agg.get("clean_score", 100),
                 "review_count": n,
                 "highlights": highlights,
@@ -220,7 +223,7 @@ def load_businesses() -> list:
 
 def classify_intent(query: str) -> dict:
     resp = client.chat.completions.create(
-        model="solar-pro3",
+        model="solar-pro",
         messages=[
             {"role": "system", "content": INTENT_SYSTEM},
             {"role": "user", "content": query},
@@ -260,7 +263,7 @@ def handle_search(search_term: str, businesses: list) -> dict:
 
 def parse_preferences(query: str) -> dict:
     resp = client.chat.completions.create(
-        model="solar-pro3",
+        model="solar-pro",
         messages=[
             {"role": "system", "content": PARSE_SYSTEM},
             {"role": "user", "content": query},
@@ -304,14 +307,14 @@ def generate_recommendations(query: str, prefs: dict, candidates: list) -> dict:
         "최대 3개를 추천하고 각 이유를 설명해주세요."
     )
     resp = client.chat.completions.create(
-        model="solar-pro3",
+        model="solar-pro",
         messages=[
             {"role": "system", "content": RECOMMEND_SYSTEM},
             {"role": "user", "content": user_msg},
         ],
         response_format=RECOMMEND_SCHEMA,
         temperature=0.3,
-        max_tokens=1024,
+        max_tokens=512,
     )
     result = json.loads(resp.choices[0].message.content)
     result["intent"] = "RECOMMEND"
@@ -329,10 +332,12 @@ def handle_recommend(query: str, businesses: list) -> dict:
 # ── 진입점 ──────────────────────────────────────────────────────────────
 
 def main():
+    raw_input = None   # hint 여부 확인에 재사용
     if not sys.stdin.isatty():
         raw = sys.stdin.read().strip()
         try:
-            query = json.loads(raw).get("query", raw)
+            raw_input = json.loads(raw)
+            query = raw_input.get("query", raw)
         except json.JSONDecodeError:
             query = raw
     elif len(sys.argv) > 1:
@@ -352,12 +357,15 @@ def main():
         }, ensure_ascii=False))
         sys.exit(1)
 
-    intent_info = classify_intent(query)
-
-    if intent_info["intent"] == "SEARCH":
-        result = handle_search(intent_info["search_term"] or query, businesses)
-    else:
+    # hint=RECOMMEND 가 전달된 경우 의도 분류 LLM 호출 생략 (서버에서 이미 판별)
+    if isinstance(raw_input, dict) and raw_input.get("hint") == "RECOMMEND":
         result = handle_recommend(query, businesses)
+    else:
+        intent_info = classify_intent(query)
+        if intent_info["intent"] == "SEARCH":
+            result = handle_search(intent_info["search_term"] or query, businesses)
+        else:
+            result = handle_recommend(query, businesses)
 
     print(json.dumps(result, ensure_ascii=False, indent=2))
 

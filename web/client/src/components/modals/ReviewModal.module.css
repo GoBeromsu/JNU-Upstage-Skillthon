@@ -1,0 +1,33 @@
+.bizForm { margin-bottom: 4px; }
+.row2 { display: flex; gap: 12px; }
+.selectedBiz {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg); border-radius: 10px; padding: 10px 12px;
+  font-size: 14px; margin-bottom: 4px;
+}
+.checklist { display: flex; flex-direction: column; gap: 8px; margin-bottom: 4px; }
+.checkItem {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px;
+  border: 1.5px solid var(--border);
+  transition: border-color .15s, background .15s; cursor: pointer;
+  font-size: 14px;
+}
+.checkItem:hover { border-color: #fca5a5; background: #fff5f5; }
+.checkItem.checked { border-color: var(--red); background: #fff1f2; }
+.checkItem input { width: 17px; height: 17px; accent-color: var(--red); cursor: pointer; }
+.fileInput { width: 100%; padding: 8px; border: 1.5px dashed var(--border); border-radius: 8px; font-size: 13px; }
+.fileList { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.purifyResult { margin-top: 14px; }
+.purifyHeader { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
+.purifyIssues { font-size: 12px; color: var(--text-sub); }
+.purifyHint { font-size: 13px; color: var(--text-sub); margin-bottom: 8px; }
+.purifyOption {
+  border: 2px solid var(--border); border-radius: 10px;
+  padding: 12px; margin-bottom: 8px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.purifyOption:hover { border-color: var(--primary); background: #eff6ff; }
+.purifyOption.selected { border-color: var(--primary); background: #eff6ff; }
+.optStyle { font-size: 11px; color: var(--text-sub); margin-bottom: 4px; font-weight: 600; }
+.optText { font-size: 14px; line-height: 1.5; }

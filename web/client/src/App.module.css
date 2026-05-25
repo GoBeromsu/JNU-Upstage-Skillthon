@@ -1,0 +1,14 @@
+.app { width: 100%; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+.main {
+  display: flex;
+  flex-direction: row;
+  position: fixed;
+  top: var(--header-h);
+  left: 0; right: 0; bottom: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .main { flex-direction: column; }
+}

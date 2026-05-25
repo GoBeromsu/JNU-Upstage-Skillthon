@@ -1,0 +1,52 @@
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: var(--header-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: var(--shadow);
+}
+.left { display: flex; align-items: center; gap: 10px; }
+.logoIcon { font-size: 30px; }
+.logoText { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+.right { display: flex; align-items: center; gap: 12px; }
+.userArea {
+  display: flex; align-items: center; gap: 8px;
+}
+.profileCircle {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px;
+  flex-shrink: 0; overflow: hidden;
+}
+.nickname {
+  font-size: 14px; font-weight: 600; color: var(--text);
+  max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.logoutBtn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px; font-weight: 600;
+  color: var(--text-sub);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.logoutBtn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+.adminBtn {
+  background: #1e293b;
+  border: none;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 13px; font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+}
+.adminBtn:hover { background: #334155; }

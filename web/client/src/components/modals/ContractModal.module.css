@@ -1,0 +1,71 @@
+.uploadZone {
+  border: 2px dashed var(--border); border-radius: 12px;
+  padding: 32px; text-align: center; cursor: pointer;
+  transition: border-color .15s, background .15s; margin-bottom: 16px;
+}
+.uploadZone:hover { border-color: var(--primary); background: #eff6ff; }
+.uploadZone.hasFile { border-color: var(--green); background: #f0fdf4; }
+.uploadIcon { font-size: 32px; margin-bottom: 8px; }
+.uploadHint { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
+.result { margin-bottom: 8px; }
+.riskBanner { border-radius: 10px; padding: 12px 16px; font-weight: 700; text-align: center; font-size: 15px; margin-bottom: 16px; }
+.SAFE { background: #dcfce7; color: #16a34a; }
+.LOW { background: #fef9c3; color: #854d0e; }
+.MEDIUM { background: #ffedd5; color: #9a3412; }
+.HIGH { background: #fee2e2; color: #991b1b; }
+.infoGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+.infoItem { background: var(--bg); border-radius: 10px; padding: 10px 12px; }
+.infoLabel { font-size: 11px; color: var(--text-sub); }
+.infoValue { font-size: 14px; font-weight: 600; margin-top: 2px; }
+.subTitle { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.subTitleWarn { font-size: 13px; font-weight: 700; color: var(--red); margin: 12px 0 6px; }
+.subTitleInfo { font-size: 13px; font-weight: 700; color: #d97706; margin: 12px 0 6px; }
+.complianceGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.compItem { display: flex; align-items: center; gap: 6px; background: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
+.list { font-size: 13px; padding-left: 18px; line-height: 1.8; }
+
+/* 이미지 + Canvas 오버레이 */
+.imageWrap {
+  position: relative;
+  margin-bottom: 16px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  background: #f8fafc;
+  max-height: 420px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.contractImg {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+}
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+
+/* 범례 */
+.legendBox {
+  position: absolute;
+  bottom: 8px; left: 8px;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 8px;
+  padding: 6px 8px;
+  backdrop-filter: blur(4px);
+}
+.legendItem {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600; color: #1e293b;
+}
+.legendDot {
+  width: 10px; height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}

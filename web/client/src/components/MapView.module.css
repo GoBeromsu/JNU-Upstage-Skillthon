@@ -1,0 +1,50 @@
+.container {
+  flex: 1 1 60%;
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+}
+.map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+
+/* 범례 */
+.legend {
+  position: absolute; bottom: 20px; left: 16px;
+  background: rgba(255,255,255,.95); border-radius: 10px;
+  padding: 10px 14px; box-shadow: var(--shadow);
+  display: flex; gap: 14px; z-index: 10;
+}
+.legendItem { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-sub); }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+/* 후기 쓰기 버튼 — 지도 좌측 상단 (로고 아래) */
+.writeBtn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 12px 24px;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 28px;
+  font-size: 22px;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.40);
+  cursor: pointer;
+  z-index: 10;
+  transition: background .15s, transform .15s, box-shadow .15s;
+  white-space: nowrap;
+}
+.writeBtn:hover {
+  background: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(59,130,246,0.50);
+}
+.writeBtn:active { transform: translateY(0); }
+
+/* 팝업 래퍼 */
+.popupWrap {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 26px));
+  z-index: 20;
+  pointer-events: auto;
+}

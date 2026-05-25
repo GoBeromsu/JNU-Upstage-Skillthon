@@ -1,0 +1,124 @@
+.popup {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.20);
+  padding: 20px;
+  width: 440px;
+  position: relative;
+  font-size: 14px;
+  animation: popIn .15s ease;
+}
+@keyframes popIn {
+  from { transform: scale(.92) translateY(6px); opacity: 0; }
+  to   { transform: scale(1)  translateY(0);    opacity: 1; }
+}
+
+/* 아래 삼각 화살표 */
+.arrow {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 11px solid #fff;
+  filter: drop-shadow(0 3px 3px rgba(0,0,0,0.10));
+}
+
+.closeBtn {
+  position: absolute; top: 12px; right: 12px;
+  background: none; border: none;
+  font-size: 16px; color: #94a3b8;
+  line-height: 1; padding: 2px 4px;
+  cursor: pointer;
+}
+.closeBtn:hover { color: #1e293b; }
+
+/* 헤더 */
+.header { display: flex; gap: 14px; align-items: center; margin-bottom: 12px; }
+
+.scoreCircle {
+  width: 62px; height: 62px; border-radius: 50%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  flex-shrink: 0; box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+}
+.scoreNum { font-size: 22px; font-weight: 800; color: #fff; line-height: 1; }
+.scoreUnit { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 600; }
+
+.bizInfo { flex: 1; min-width: 0; }
+.bizName { font-size: 17px; font-weight: 700; color: #1e293b; margin-bottom: 2px; }
+.bizMeta { font-size: 13px; color: #64748b; margin-bottom: 4px; }
+.scoreBadge { display: inline-block; padding: 2px 10px; border-radius: 20px;
+              font-size: 12px; font-weight: 700; }
+
+/* 준수 요약 */
+.summary {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 12px; background: #f8fafc; border-radius: 8px;
+  margin-bottom: 12px; flex-wrap: wrap;
+}
+.summaryGreen { color: #16a34a; font-weight: 600; font-size: 13px; }
+.summaryRed   { color: #dc2626; font-weight: 600; font-size: 13px; }
+.summaryGray  { color: #64748b; font-size: 13px; }
+.summarySep   { color: #cbd5e1; }
+
+/* O/X 리스트 */
+.oxList {
+  display: flex; flex-direction: column; gap: 4px;
+  max-height: 170px; overflow-y: auto;
+  margin-bottom: 12px;
+  padding-right: 2px;
+}
+.oxList::-webkit-scrollbar { width: 4px; }
+.oxList::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 2px; }
+
+.oxItem {
+  display: flex; align-items: center; gap: 8px;
+  padding: 4px 6px; border-radius: 6px;
+}
+.oxItem:hover { background: #f8fafc; }
+.oxOk  { font-size: 13px; color: #16a34a; font-weight: 700; flex-shrink: 0; width: 16px; }
+.oxFail { font-size: 13px; color: #dc2626; font-weight: 700; flex-shrink: 0; width: 16px; }
+.oxLabel { flex: 1; font-size: 13px; color: #475569;
+           white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.oxRate  { font-size: 13px; font-weight: 600; flex-shrink: 0; }
+
+/* 태그 */
+.tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+
+/* 자주 올라오는 공고 */
+.jobSection {
+  margin-bottom: 12px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.jobTitle {
+  font-size: 12px; font-weight: 700; color: #92400e;
+  margin-bottom: 8px;
+}
+.jobList { display: flex; flex-direction: column; gap: 6px; }
+.jobItem {
+  padding: 6px 8px;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #fde68a;
+}
+.jobName { font-size: 12px; font-weight: 600; color: #1e293b; margin-bottom: 2px; }
+.jobMeta { font-size: 11px; color: #78716c; }
+
+/* 버튼 */
+.actions { display: flex; gap: 6px; margin-top: 2px; }
+
+.detailBtn {
+  flex: 1; padding: 10px 0;
+  background: #3b82f6; color: #fff;
+  border: none; border-radius: 8px;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer;
+  transition: background .15s;
+}
+.detailBtn:hover { background: #2563eb; }

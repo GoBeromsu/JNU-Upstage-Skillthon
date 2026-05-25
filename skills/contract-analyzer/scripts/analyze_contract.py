@@ -152,12 +152,14 @@ EXTRACT_SYSTEM = """당신은 한국 근로계약서 분석 전문가입니다.
 
 # ── Document Parse ──────────────────────────────────────────────────────
 
-def parse_document(file_path: str, force_ocr: bool = False) -> str:
-    """Document Parse API로 계약서를 텍스트화한다."""
+def parse_document(file_path: str, force_ocr: bool = False):
+    """Document Parse API로 계약서를 텍스트화한다.
+    Returns (markdown_text, elements, pages)
+    """
     form_data = {
         "model": "document-parse",
         "output_formats": '["markdown"]',
-        "coordinates": "false",
+        "coordinates": "true",   # 위반 항목 좌표 하이라이트용
     }
     if force_ocr:
         form_data["ocr"] = "force"
@@ -170,7 +172,98 @@ def parse_document(file_path: str, force_ocr: bool = False) -> str:
             data=form_data,
         )
     resp.raise_for_status()
-    return resp.json()["content"]["markdown"]
+    data = resp.json()
+    markdown = data["content"]["markdown"]
+    elements = data.get("elements", [])
+    pages    = data.get("pages", [])
+    return markdown, elements, pages
+
+
+# ── 위반 항목 좌표 추출 ─────────────────────────────────────────────────
+
+# 위반 항목별 색상 (hex, 투명도는 프론트에서 처리)
+_VIOLATION_COLOR = {
+    "최저시급 미준수":               "#ef4444",
+    "휴게시간 부족":                 "#f97316",
+    "수습기간 최저임금법 위반":       "#ef4444",
+    "위약금 및 손해배상 강제조항":    "#dc2626",
+}
+
+def find_violation_regions(elements, entities, checks):
+    """위반 항목과 관련된 텍스트 블록의 좌표를 찾아 반환한다.
+    각 위반 유형당 가장 관련도 높은 요소 1개만 반환한다."""
+    regions = []
+    seen_ids = set()
+
+    def add_one(elem_id, elem, label):
+        """이미 해당 label로 등록된 게 있으면 추가하지 않는다."""
+        if any(r["label"] == label for r in regions):
+            return
+        if elem_id in seen_ids:
+            return
+        coords = elem.get("coordinates", [])
+        if not coords:
+            return
+        seen_ids.add(elem_id)
+        regions.append({
+            "label":       label,
+            "color":       _VIOLATION_COLOR.get(label, "#f59e0b"),
+            "coordinates": coords,
+            "page":        elem.get("page", 1),
+        })
+
+    # ── 최저시급 ──────────────────────────────────────────────
+    if checks.get("최저시급_준수") is False:
+        wage = entities.get("hourly_wage")
+        if wage:
+            wage_plain = str(wage)        # "9160"
+            wage_comma = f"{wage:,}"      # "9,160"
+            # 1순위: 실제 임금 숫자가 포함된 요소 (가장 정확)
+            for idx, elem in enumerate(elements):
+                raw = (elem.get("content") or {}).get("markdown", "")
+                if wage_plain in raw or wage_comma in raw:
+                    add_one(idx, elem, "최저시급 미준수")
+                    break
+            # 2순위: 시급/시간급 키워드 (숫자 못 찾은 경우)
+            if not any(r["label"] == "최저시급 미준수" for r in regions):
+                for idx, elem in enumerate(elements):
+                    raw  = (elem.get("content") or {}).get("markdown", "")
+                    text = raw.lower()
+                    if "시급" in text or "시간급" in text:
+                        add_one(idx, elem, "최저시급 미준수")
+                        break
+
+    # ── 휴게시간 ──────────────────────────────────────────────
+    if checks.get("휴게시간_준수") is False:
+        for idx, elem in enumerate(elements):
+            raw  = (elem.get("content") or {}).get("markdown", "")
+            text = raw.lower()
+            if "휴게" in text or "휴식" in text:
+                add_one(idx, elem, "휴게시간 부족")
+                break
+
+    # ── 수습기간 ──────────────────────────────────────────────
+    if checks.get("수습기간_합법성") is False:
+        for idx, elem in enumerate(elements):
+            raw  = (elem.get("content") or {}).get("markdown", "")
+            text = raw.lower()
+            if "수습" in text:
+                add_one(idx, elem, "수습기간 최저임금법 위반")
+                break
+
+    # ── 독소조항 ──────────────────────────────────────────────
+    if checks.get("독소조항_없음") is False:
+        evidence = entities.get("penalty_evidence") or ""
+        keywords = [w for w in evidence.split() if len(w) >= 2][:6]
+        for idx, elem in enumerate(elements):
+            raw  = (elem.get("content") or {}).get("markdown", "")
+            text = raw.lower()
+            if (keywords and any(kw.lower() in text for kw in keywords)) or \
+               any(k in text for k in ("위약금", "손해배상", "벌금", "배상")):
+                add_one(idx, elem, "위약금 및 손해배상 강제조항")
+                break
+
+    return regions
 
 
 # ── 엔티티 추출 ─────────────────────────────────────────────────────────
@@ -178,7 +271,7 @@ def parse_document(file_path: str, force_ocr: bool = False) -> str:
 def extract_entities(parsed_text: str) -> dict:
     """Solar LLM으로 핵심 항목을 구조화 추출한다."""
     resp = client.chat.completions.create(
-        model="solar-pro3",
+        model="solar-pro",
         messages=[
             {"role": "system", "content": EXTRACT_SYSTEM},
             {"role": "user", "content": f"다음 근로계약서 텍스트를 분석해주세요:\n\n{parsed_text}"},
@@ -279,10 +372,11 @@ def risk_level(confirmed_violations: list) -> str:
 # ── 메인 ────────────────────────────────────────────────────────────────
 
 def analyze(file_path: str, force_ocr: bool = False) -> dict:
-    parsed_text = parse_document(file_path, force_ocr=force_ocr)
-    entities = extract_entities(parsed_text)
-    checks = check_compliance(entities)
+    parsed_text, elements, pages = parse_document(file_path, force_ocr=force_ocr)
+    entities  = extract_entities(parsed_text)
+    checks    = check_compliance(entities)
     confirmed, needs = build_violations_and_verifications(entities, checks)
+    regions   = find_violation_regions(elements, entities, checks)
 
     return {
         "file": file_path,
@@ -292,6 +386,8 @@ def analyze(file_path: str, force_ocr: bool = False) -> dict:
         "needs_verification": needs,
         "risk_level": risk_level(confirmed),
         "minimum_wage_2026": MIN_HOURLY_WAGE_2026,
+        "violation_regions": regions,          # 프론트 Canvas 하이라이트용
+        "pages": pages,                         # 원본 문서 페이지 크기
     }
 
 
