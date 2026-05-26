@@ -94,10 +94,13 @@ $$\text{CleanScore} = 100 - \sum_{i=1}^{8} \left(\frac{\text{위반 건수}_i}{\
 
 | 구분 | 내용 |
 |---|---|
-| Front-end | React.js, 카카오맵 API |
-| Back-end | Node.js (Express), PostgreSQL |
+| Front-end | React.js (Vite), 카카오맵 API |
+| Back-end | Node.js / Express |
+| Database | PostgreSQL (Railway) |
+| Storage | Cloudflare R2 (증빙 이미지 영구 저장) |
 | AI Skill | Python 3.11, Upstage Solar (`solar-pro3`), Document Parse API, JSON Schema (`strict: true`) |
-| Infra | Vercel, Railway, GitHub |
+| Deployment | Railway |
+| Collaboration | GitHub |
 
 ---
 
@@ -120,6 +123,16 @@ JNU-Upstage-Skillthon/
 │       │   ├── recommend.py       # 검색·추천 (Solar LLM 의도 분류)
 │       │   └── add_review.py      # 리뷰 등록 및 클린지수 갱신
 │       └── data/                  # {business_id}.json 누적 데이터
+├── web/
+│   ├── client/                    # React + Vite 프론트엔드
+│   │   └── src/
+│   │       ├── pages/             # 메인·계약서 분석·후기 작성 등 페이지
+│   │       └── components/        # MapView, Sidebar 등 공통 컴포넌트
+│   └── server/                    # Node.js + Express 백엔드
+│       └── src/
+│           ├── routes/            # reviews, admin, skills, auth API
+│           ├── db/                # PostgreSQL 연결 및 쿼리
+│           └── utils/             # Cloudflare R2 스토리지 유틸
 └── README.md
 ```
 
@@ -172,6 +185,11 @@ python scripts/recommend.py "클린지수 높은 상대 카페 알바 추천해�
 
 ---
 
-## 🤖 에이전트 확장: 클린알바 어드바이저
+## 🔮 미래 확장 계획
 
-대화형 인터페이스를 통해 **근로기준법 멘토링**과 **맞춤형 알바 매칭**을 통합 제공하는 AI 어드바이저로 확장 예정입니다.
+| 단계 | 주요 목표 | 세부 내용 |
+|---|---|---|
+| 1단계 | MVP 활성화 | 기본 기능(UI·클린지수·후기 순화) 안정화, 실사용자 테스트 기반 피드백 수집 |
+| 2단계 | 신뢰도 고도화 | 관리자 검수 자동화, OCR 정확도 향상, 증빙 자료 입력 형식 다양화 |
+| 3단계 | 지역 확장 | 전남대 → 전국 대학으로 서비스 확장, 타 대학 상권 클린알바맵 구축 |
+| 4단계 | 정책 연계 | 청년 노동 정책 기관과 연계, 청년 근로기준 보호 플랫폼으로 발전 |
