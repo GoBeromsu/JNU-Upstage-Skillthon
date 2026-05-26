@@ -17,11 +17,21 @@ export default function MapView({ businesses, onSelectBiz }) {
   const contentMapRef  = useRef({})
   const popupBizRef    = useRef(null)
   const popupLatLonRef = useRef(null)   // { lat, lon } — 줌/이동 시 재계산용
+  const popupWrapRef   = useRef(null)   // 팝업 DOM — 실제 높이 측정용
 
   const [popupBiz, setPopupBiz] = useState(null)
   const [popupPos, setPopupPos] = useState({ x: 0, y: 0, below: false })
 
   useEffect(() => { popupBizRef.current = popupBiz }, [popupBiz])
+
+  // 팝업 렌더 후 실제 높이 측정해서 방향 재보정 (flicker 1프레임 방지용)
+  useEffect(() => {
+    if (!popupWrapRef.current || !popupBiz || popupPos.below) return
+    const popupH = popupWrapRef.current.offsetHeight
+    if (popupPos.y < popupH + 30) {
+      setPopupPos(prev => ({ ...prev, below: true }))
+    }
+  }, [popupBiz, popupPos.y]) // eslint-disable-line
 
   /* ── 위경도 → 픽셀 변환 + 방향 결정 ───────────────────────── */
   const computePopupPos = useCallback(() => {
@@ -31,8 +41,9 @@ export default function MapView({ businesses, onSelectBiz }) {
     const point = proj.containerPointFromCoords(
       new window.kakao.maps.LatLng(lat, lon)
     )
-    // 핀이 지도 상단 280px 이내면 팝업을 아래쪽으로 표시
-    const below = point.y < 280
+    // 팝업 실제 높이 측정 (렌더 후) or 보수적 기본값 500px
+    const popupH = popupWrapRef.current?.offsetHeight ?? 500
+    const below  = point.y < popupH + 30
     setPopupPos({ x: point.x, y: point.y, below })
   }, [])
 
@@ -171,6 +182,7 @@ export default function MapView({ businesses, onSelectBiz }) {
       {/* 팝업 — 방향에 따라 위/아래 클래스 분기 */}
       {popupBiz && (
         <div
+          ref={popupWrapRef}
           className={popupPos.below ? styles.popupWrapBelow : styles.popupWrap}
           style={{ left: popupPos.x, top: popupPos.y }}
         >
