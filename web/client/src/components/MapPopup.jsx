@@ -1,7 +1,7 @@
 import { CRITERIA_KEYS, COLOR_MAP } from '../utils/constants'
 import styles from './MapPopup.module.css'
 
-export default function MapPopup({ biz, onClose, onViewDetail }) {
+export default function MapPopup({ biz, onClose, onViewDetail, below = false }) {
   if (!biz) return null
 
   const hex = COLOR_MAP[biz.color] || '#3b82f6'
@@ -93,8 +93,8 @@ export default function MapPopup({ biz, onClose, onViewDetail }) {
         </button>
       </div>
 
-      {/* 아래 화살표 */}
-      <div className={styles.arrow} />
+      {/* 화살표 — 팝업 방향에 따라 위/아래 */}
+      <div className={below ? styles.arrowTop : styles.arrow} />
     </div>
   )
 }

@@ -41,10 +41,18 @@
 }
 .writeBtn:active { transform: translateY(0); }
 
-/* 팝업 래퍼 */
+/* 팝업 래퍼 — 핀 위쪽 (기본) */
 .popupWrap {
   position: absolute;
   transform: translate(-50%, calc(-100% - 26px));
+  z-index: 20;
+  pointer-events: auto;
+}
+
+/* 팝업 래퍼 — 핀 아래쪽 (상단 핀일 때) */
+.popupWrapBelow {
+  position: absolute;
+  transform: translate(-50%, 26px);
   z-index: 20;
   pointer-events: auto;
 }

@@ -13,7 +13,7 @@
   to   { transform: scale(1)  translateY(0);    opacity: 1; }
 }
 
-/* 아래 삼각 화살표 */
+/* 아래 삼각 화살표 (팝업이 핀 위에 있을 때) */
 .arrow {
   position: absolute;
   bottom: -10px;
@@ -24,6 +24,19 @@
   border-right: 11px solid transparent;
   border-top: 11px solid #fff;
   filter: drop-shadow(0 3px 3px rgba(0,0,0,0.10));
+}
+
+/* 위 삼각 화살표 (팝업이 핀 아래에 있을 때) */
+.arrowTop {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-bottom: 11px solid #fff;
+  filter: drop-shadow(0 -2px 3px rgba(0,0,0,0.10));
 }
 
 .closeBtn {
