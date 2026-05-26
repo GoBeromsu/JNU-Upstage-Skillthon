@@ -29,14 +29,14 @@
 /* 위 삼각 화살표 (팝업이 핀 아래에 있을 때) */
 .arrowTop {
   position: absolute;
-  top: -10px;
+  top: -30px;          /* 팝업 위 54px 중 위쪽 30px 지점에 화살촉 */
   left: 50%;
   transform: translateX(-50%);
   width: 0; height: 0;
   border-left: 11px solid transparent;
   border-right: 11px solid transparent;
-  border-bottom: 11px solid #fff;
-  filter: drop-shadow(0 -2px 3px rgba(0,0,0,0.10));
+  border-bottom: 30px solid #fff;    /* 핀까지 이어지는 긴 화살표 */
+  filter: drop-shadow(0 -2px 4px rgba(0,0,0,0.12));
 }
 
 .closeBtn {

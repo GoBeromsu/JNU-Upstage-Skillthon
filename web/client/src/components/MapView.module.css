@@ -52,7 +52,7 @@
 /* 팝업 래퍼 — 핀 아래쪽 (상단 핀일 때) */
 .popupWrapBelow {
   position: absolute;
-  transform: translate(-50%, 26px);
+  transform: translate(-50%, 54px);   /* 핀 반지름(20) + 여유(34) */
   z-index: 20;
   pointer-events: auto;
 }

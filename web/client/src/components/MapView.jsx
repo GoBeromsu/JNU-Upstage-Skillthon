@@ -18,6 +18,7 @@ export default function MapView({ businesses, onSelectBiz }) {
   const popupBizRef    = useRef(null)
   const popupLatLonRef = useRef(null)   // { lat, lon } — 줌/이동 시 재계산용
   const popupWrapRef   = useRef(null)   // 팝업 DOM — 실제 높이 측정용
+  const activePinRef   = useRef(null)   // 현재 열린 팝업의 핀 DOM — z-index 관리용
 
   const [popupBiz, setPopupBiz] = useState(null)
   const [popupPos, setPopupPos] = useState({ x: 0, y: 0, below: false, arrowOffset: 0 })
@@ -64,6 +65,11 @@ export default function MapView({ businesses, onSelectBiz }) {
   }, [popupBiz, computePopupPos]) // eslint-disable-line
 
   function closePopup() {
+    // 이전 활성 핀 z-index 복원
+    if (activePinRef.current) {
+      activePinRef.current.style.zIndex = ''
+      activePinRef.current = null
+    }
     setPopupBiz(null)
     popupLatLonRef.current = null
   }
@@ -138,10 +144,15 @@ export default function MapView({ businesses, onSelectBiz }) {
       content.addEventListener('click', (e) => {
         e.stopPropagation()
         if (popupBizRef.current?.businessId === biz.businessId) {
-          setPopupBiz(null)
-          popupLatLonRef.current = null
+          closePopup()
           return
         }
+        // 이전 핀 z-index 복원
+        if (activePinRef.current) activePinRef.current.style.zIndex = ''
+        // 클릭된 핀을 팝업(z:20)보다 위로
+        content.style.zIndex = '30'
+        activePinRef.current = content
+
         content.style.transform = 'scale(1.2)'
         setTimeout(() => { content.style.transform = 'scale(1)' }, 150)
 
