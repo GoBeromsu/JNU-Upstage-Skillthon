@@ -20,20 +20,17 @@ export default function MapView({ businesses, onSelectBiz }) {
   const popupWrapRef   = useRef(null)   // 팝업 DOM — 실제 높이 측정용
 
   const [popupBiz, setPopupBiz] = useState(null)
-  const [popupPos, setPopupPos] = useState({ x: 0, y: 0, below: false })
+  const [popupPos, setPopupPos] = useState({ x: 0, y: 0, below: false, arrowOffset: 0 })
 
   useEffect(() => { popupBizRef.current = popupBiz }, [popupBiz])
 
-  // 팝업 렌더 후 실제 높이 측정해서 방향 재보정 (flicker 1프레임 방지용)
+  // 팝업 렌더 후 실측 높이로 재보정 (1프레임 후 정확한 값으로 재계산)
   useEffect(() => {
-    if (!popupWrapRef.current || !popupBiz || popupPos.below) return
-    const popupH = popupWrapRef.current.offsetHeight
-    if (popupPos.y < popupH + 30) {
-      setPopupPos(prev => ({ ...prev, below: true }))
-    }
-  }, [popupBiz, popupPos.y]) // eslint-disable-line
+    if (!popupWrapRef.current || !popupBiz) return
+    computePopupPos()
+  }, [popupBiz, computePopupPos]) // eslint-disable-line
 
-  /* ── 위경도 → 픽셀 변환 + 방향 결정 ───────────────────────── */
+  /* ── 위경도 → 픽셀 변환 + 방향/클램핑 결정 ─────────────────── */
   const computePopupPos = useCallback(() => {
     if (!mapInstance.current || !popupLatLonRef.current) return
     const { lat, lon } = popupLatLonRef.current
@@ -41,10 +38,30 @@ export default function MapView({ businesses, onSelectBiz }) {
     const point = proj.containerPointFromCoords(
       new window.kakao.maps.LatLng(lat, lon)
     )
-    // 팝업 실제 높이 측정 (렌더 후) or 보수적 기본값 500px
-    const popupH = popupWrapRef.current?.offsetHeight ?? 500
-    const below  = point.y < popupH + 30
-    setPopupPos({ x: point.x, y: point.y, below })
+
+    const containerW = mapRef.current?.offsetWidth  ?? 800
+    const containerH = mapRef.current?.offsetHeight ?? 600
+    const POPUP_W    = 440
+    const MARGIN     = 10          // 지도 가장자리 여백
+    const halfW      = POPUP_W / 2 + MARGIN
+
+    // 팝업 실제 높이 or 보수적 기본값
+    const popupH = popupWrapRef.current?.offsetHeight ?? 600
+
+    // ① 상하 방향 결정
+    const below = point.y < popupH + 30
+
+    // ② x 클램핑 — 팝업이 좌/우로 벗어나지 않도록
+    const clampedX    = Math.max(halfW, Math.min(point.x, containerW - halfW))
+    const arrowOffset = point.x - clampedX   // 화살표를 실제 핀 위치로 보정
+
+    // ③ y 클램핑 — 팝업 아래 방향일 때 하단 초과 방지
+    const maxY = below
+      ? containerH - popupH - 30
+      : containerH
+    const clampedY = Math.min(point.y, maxY)
+
+    setPopupPos({ x: clampedX, y: clampedY, below, arrowOffset })
   }, [])
 
   function closePopup() {
@@ -191,6 +208,7 @@ export default function MapView({ businesses, onSelectBiz }) {
             onClose={closePopup}
             onViewDetail={(bizId) => navigate(`/business/${bizId}`)}
             below={popupPos.below}
+            arrowOffset={popupPos.arrowOffset ?? 0}
           />
         </div>
       )}
