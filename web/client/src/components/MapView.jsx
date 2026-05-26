@@ -24,13 +24,8 @@ export default function MapView({ businesses, onSelectBiz }) {
 
   useEffect(() => { popupBizRef.current = popupBiz }, [popupBiz])
 
-  // 팝업 렌더 후 실측 높이로 재보정 (1프레임 후 정확한 값으로 재계산)
-  useEffect(() => {
-    if (!popupWrapRef.current || !popupBiz) return
-    computePopupPos()
-  }, [popupBiz, computePopupPos]) // eslint-disable-line
-
   /* ── 위경도 → 픽셀 변환 + 방향/클램핑 결정 ─────────────────── */
+  // ※ useEffect 의존성 배열에 사용되므로 반드시 useEffect보다 먼저 선언
   const computePopupPos = useCallback(() => {
     if (!mapInstance.current || !popupLatLonRef.current) return
     const { lat, lon } = popupLatLonRef.current
@@ -42,7 +37,7 @@ export default function MapView({ businesses, onSelectBiz }) {
     const containerW = mapRef.current?.offsetWidth  ?? 800
     const containerH = mapRef.current?.offsetHeight ?? 600
     const POPUP_W    = 440
-    const MARGIN     = 10          // 지도 가장자리 여백
+    const MARGIN     = 10
     const halfW      = POPUP_W / 2 + MARGIN
 
     // 팝업 실제 높이 or 보수적 기본값
@@ -56,13 +51,17 @@ export default function MapView({ businesses, onSelectBiz }) {
     const arrowOffset = point.x - clampedX   // 화살표를 실제 핀 위치로 보정
 
     // ③ y 클램핑 — 팝업 아래 방향일 때 하단 초과 방지
-    const maxY = below
-      ? containerH - popupH - 30
-      : containerH
+    const maxY     = below ? containerH - popupH - 30 : containerH
     const clampedY = Math.min(point.y, maxY)
 
     setPopupPos({ x: clampedX, y: clampedY, below, arrowOffset })
   }, [])
+
+  // 팝업 렌더 후 실측 높이로 재보정
+  useEffect(() => {
+    if (!popupWrapRef.current || !popupBiz) return
+    computePopupPos()
+  }, [popupBiz, computePopupPos]) // eslint-disable-line
 
   function closePopup() {
     setPopupBiz(null)
@@ -98,9 +97,7 @@ export default function MapView({ businesses, onSelectBiz }) {
       })
 
       window.kakao.maps.event.addListener(mapInstance.current, 'click', closePopup)
-      // 줌 변경 시 팝업 위치 즉시 재계산
       window.kakao.maps.event.addListener(mapInstance.current, 'zoom_changed', computePopupPos)
-      // 드래그 종료 시 팝업 위치 재계산
       window.kakao.maps.event.addListener(mapInstance.current, 'dragend', computePopupPos)
     }
 
@@ -148,7 +145,6 @@ export default function MapView({ businesses, onSelectBiz }) {
         content.style.transform = 'scale(1.2)'
         setTimeout(() => { content.style.transform = 'scale(1)' }, 150)
 
-        // 위경도 저장 후 픽셀 위치 계산
         popupLatLonRef.current = { lat: biz.lat, lon: biz.lon }
         computePopupPos()
         setPopupBiz(biz)
