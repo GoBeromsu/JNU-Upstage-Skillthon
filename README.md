@@ -8,6 +8,8 @@
 [![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-orange)](https://claude.ai/code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+🔗 **배포 주소:** [https://jnu-upstage-skillthon-production.up.railway.app](https://jnu-upstage-skillthon-production.up.railway.app)
+
 ---
 
 ## 👥 팀 소개: 조오타
